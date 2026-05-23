@@ -23,6 +23,8 @@ If you already use Jellyfin and want to help:
 
 Please use the Google Play version during testing instead of a sideloaded APK so updates come through the Play Store automatically while I work toward the official release.
 
+## Screenshots
+
 <p align="center">
   <img src="assets/screenshots/desktop-home.png" alt="Finzy Desktop Home Screen" width="800" />
 </p>
