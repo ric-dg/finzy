@@ -737,8 +737,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "467251821f76bba37ed4c6d5ee1c9de27c285e34"
-      resolved-ref: "467251821f76bba37ed4c6d5ee1c9de27c285e34"
+      ref: "5a7cc77"
+      resolved-ref: "5a7cc7700d5cee943b545f39846727c85cbfe18a"
       url: "https://github.com/dkmcgowan/media_controls"
     source: git
     version: "0.2.0"
