@@ -95,6 +95,14 @@ This document lists feature gaps between Finzy and Jellyfin (web + API). It serv
 
 ## Later
 
+### Web Platform Support (PWA)
+
+- **Effort:** High (6-10 weeks)
+- **Plan:** [docs/PLAN_WEB_SUPPORT.md](PLAN_WEB_SUPPORT.md)
+- **Goal:** Finzy as a Progressive Web App — browsing, playback, and basic offline cache in a browser tab.
+- **Key challenges:** Player replacement (native MPV/ExoPlayer → HTML `<video>`), file system (IndexedDB/Cache API instead of `dart:io`/SQLite), conditional import infrastructure for 40-60 files, no background execution, browser storage quotas.
+- **Status:** Exploration phase. Go/no-go decision after M0 audit.
+
 ### Item Metadata Editing
 
 - **Effort:** Medium
