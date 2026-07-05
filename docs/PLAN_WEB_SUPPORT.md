@@ -1,6 +1,6 @@
 # Plan: Web Platform Support
 
-**Status:** Not started  
+**Status:** M0 (Audit) — complete  
 **Effort:** High (months)  
 **Priority:** Low - explore
 
@@ -23,30 +23,38 @@ This doc outlines what it would take to make Finzy work as a Progressive Web App
 
 Check every dependency in `pubspec.yaml` for web support. Web-compiling packages stay; blockers need stubs/replacements.
 
-**Key blockers (need stubs or alternatives):**
+### M0 Completed — Actual Build Test Results
 
-| Dependency | Issue | Approach |
+The build was tested by running `flutter build web` after `flutter create . --platforms web`.
+
+**Result:** Build fails — single root cause: `dart:ffi` (native foreign function interface) is not available on web. Every other error cascades from this.
+
+**Import chain to fix:**
+```
+main.dart → app_database.dart → drift/native.dart → sqlite3 → dart:ffi
+```
+
+**Dependency audit:**
+
+| Status | Dependency | Notes |
 |---|---|---|
-| `window_manager` | Web-only imports (`dart:io`) | Stub — all methods no-op; web has no window chrome controls |
-| `path_provider` | `dart:io` paths | Replace with `path_provider_web` or stub; web uses transient storage |
-| `drift` + `sqlite3_flutter_libs` | Native SQLite | Use `drift` with `sqlite3_web` (WASM-based) or `SharedPreferencesDrift` for simple KV |
-| `background_downloader` | Native only | Replace with `dio` streaming + browser download API (FileSaver) |
-| `workmanager` | Native only | Web runs in foreground only; no background task API |
-| `wakelock_plus` (git fork) | Check fork for web | May work; if not, sync API call |
-| `os_media_controls` | Native only | No-op stub; browser manages media notifications |
-| `universal_gamepad` | Native only | Stub or use `web_gamepad` API directly |
-| `mobile_scanner` | Native only | Stub or use `webcam` API directly |
-| `android_intent_plus` | Android only | No-op stub |
-| `saf_util` / `saf_stream` | Android SAF | No-op stub |
-| `in_app_review` | Native only | No-op stub |
-| `flutter_svg` | Check version | Likely works, verify |
-| `file_picker` | Has web support | Verify version |
-| `cached_network_image` | Has web support | Verify version |
-| `connectivity_plus` | Has web support | Verify version |
-| `dio` | Full web support | ✅ No change |
-| `provider` | Full web support | ✅ No change |
+| ✅ Works | `dio`, `provider`, `shared_preferences`, `path`, `uuid`, `crypto`, `json_annotation`, `url_launcher`, `logger`, `package_info_plus`, `connectivity_plus`, `intl`, `duration`, `rate_limiter`, `material_symbols_icons`, `flex_color_picker`, `qr_flutter`, `slang`/`slang_flutter`, `cached_network_image` | All support web natively |
+| ⚠️ Stub needed | `window_manager` | `dart:io` platform views |
+| ⚠️ Stub needed | `path_provider` | No filesystem on web |
+| ⚠️ Stub needed | `background_downloader` | Use `dio` + browser download |
+| ⚠️ Stub needed | `workmanager` | No background task API on web |
+| ⚠️ Stub needed | `os_media_controls` | Browser manages media notifications |
+| ⚠️ Stub needed | `universal_gamepad` | Use `web_gamepad` API |
+| ⚠️ Stub needed | `mobile_scanner` | Use `webcam` JS interop |
+| ⚠️ Stub needed | `android_intent_plus` | Android-only |
+| ⚠️ Stub needed | `saf_util` / `saf_stream` | Android SAF only |
+| ⚠️ Stub needed | `in_app_review` | Native-only |
+| ⚠️ Check fork | `wakelock_plus` (git fork) | Verify web support in forked version |
+| ❌ **FATAL** | `drift` + `sqlite3_flutter_libs` + `ffi` | **THE blocker.** `dart:ffi` unavailable on web. Switch to `drift` + `sqlite3_web` (WASM SQLite) on web. |
 
-**Effort:** Small — research & document, 1-2 hours.
+**Go/No-Go verdict:** The single hard blocker is `drift`/SQLite via FFI. `sqlite3_web` exists but adds WASM build complexity. All other blockers are mechanical (stubs). Recommend proceeding to M1 if SQLite-on-web is acceptable.
+
+**Effort:** Small — research complete.
 
 ---
 
