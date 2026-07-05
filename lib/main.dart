@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'dart:io' show Platform;
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
 import 'screens/main_screen.dart';
@@ -94,19 +94,21 @@ void main() async {
   final futures = <Future<void>>[];
 
   // Initialize window_manager for desktop platforms
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+  if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     futures.add(windowManager.ensureInitialized());
   }
 
   // Initialize TV detection and PiP service for Android
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     futures.add(TvDetectionService.getInstance());
     // Initialize PiP service to listen for PiP state changes
     PipService();
   }
 
   // Configure macOS window with custom titlebar (depends on window manager)
-  futures.add(MacOSTitlebarService.setupCustomTitlebar());
+  if (!kIsWeb) {
+    futures.add(MacOSTitlebarService.setupCustomTitlebar());
+  }
 
   // Initialize storage service
   futures.add(StorageService.getInstance());
@@ -130,10 +132,12 @@ void main() async {
   await DownloadStorageService.instance.initialize(settings);
 
   // Start global fullscreen state monitoring
-  FullscreenStateManager().startMonitoring();
+  if (!kIsWeb) {
+    FullscreenStateManager().startMonitoring();
+  }
 
   // Initialize gamepad service for desktop platforms
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+  if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GamepadService.instance.start();
   }
 
@@ -146,6 +150,7 @@ void main() async {
 }
 
 void _registerShaderLicenses() {
+  if (kIsWeb) return;
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(
       ['Anime4K'],
