@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
+import 'connection_native.dart'
+    if (dart.library.html) 'connection_web.dart';
 import 'tables.dart';
 import '../models/download_models.dart';
 import '../utils/app_logger.dart';
@@ -13,7 +11,7 @@ part 'app_database.g.dart';
 // Simplified database with API cache for offline support
 @DriftDatabase(tables: [DownloadedMedia, DownloadQueue, ApiCache, OfflineWatchProgress])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase() : super(createConnection());
 
   @override
   int get schemaVersion => 11;
@@ -207,37 +205,4 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    Directory dbFolder;
-    if (Platform.isAndroid || Platform.isIOS) {
-      dbFolder = await getApplicationDocumentsDirectory();
-    } else {
-      dbFolder = await getApplicationSupportDirectory();
-    }
 
-    final file = File(p.join(dbFolder.path, 'finzy_downloads.db'));
-
-    // Ensure directory exists
-    if (!await file.parent.exists()) {
-      await file.parent.create(recursive: true);
-    }
-
-    // Migrate from old locations on desktop (was in Documents or path_provider's AppSupport)
-    if (!Platform.isAndroid && !Platform.isIOS && !await file.exists()) {
-      final oldFolder = await getApplicationSupportDirectory();
-      final oldFile = File(p.join(oldFolder.path, 'finzy_downloads.db'));
-      if (await oldFile.exists()) {
-        await oldFile.rename(file.path);
-      } else {
-        final docsFolder = await getApplicationDocumentsDirectory();
-        final docsFile = File(p.join(docsFolder.path, 'finzy_downloads.db'));
-        if (await docsFile.exists()) {
-          await docsFile.rename(file.path);
-        }
-      }
-    }
-
-    return NativeDatabase(file);
-  });
-}

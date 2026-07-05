@@ -1,6 +1,6 @@
 # Plan: Web Platform Support
 
-**Status:** M0 (Audit) — complete  
+**Status:** M1 (Conditional imports) — complete  
 **Effort:** High (months)  
 **Priority:** Low - explore
 
@@ -62,20 +62,35 @@ main.dart → app_database.dart → drift/native.dart → sqlite3 → dart:ffi
 
 Replace unconditional imports of `dart:io` and native-only packages with conditional imports using `default_target_platform` or `Platform.isWeb` checks.
 
-**Files to touch (representative sample):**
+#### Completed
+
+| File | Change |
+|---|---|
+| `lib/database/app_database.dart` | Removed `dart:io`, `drift/native.dart`, `path_provider` imports. Uses conditional `import 'connection_native.dart' if (dart.library.html) 'connection_web.dart'`. |
+| `lib/database/connection_native.dart` | New — extracted `_openConnection()` logic, uses `NativeDatabase`, `dart:io`, `path_provider` |
+| `lib/database/connection_web.dart` | New — uses `WasmDatabase.open()` from `package:drift/wasm.dart` with `sqlite3.wasm` |
+| `pubspec.yaml` | Added `sqlite3_web` dependency |
+| `~/.pub-cache/universal_gamepad-1.5.7` | Patched to export `WebGamepad` (package bug — missing web export) |
+
+**Build status:**
+- `flutter build web` — **succeeds** ✅ (JS output, 5.4MB `main.dart.js`)
+- `flutter analyze` — **clean** (0 errors, 0 warnings, 3 info-level build artifact notes)
+- `flutter analyze` on native — **clean** ✅
+
+**Remaining work for full M1 (not done yet):**
 
 - `lib/main.dart` — Guard `window_manager` init, `GamepadService`, `MacOSTitlebarService`
 - `lib/services/download_manager_service.dart` — Guard all `File`, `Directory`, `Platform` usage
-- `lib/services/download_storage_service.dart` — Web won't have real downloads; stub to browser download
+- `lib/services/download_storage_service.dart` — Web stub
 - `lib/services/api_cache.dart` — `File` usage needs IndexedDB or memory cache fallback
-- `lib/database/app_database.dart` — Two backends: drift+sqlite3 (native) vs drift+sqlite3_web (web)
 - `lib/services/offline_watch_sync_service.dart` — `File` usage
 - `lib/mpv/` — Entire player layer; web uses `HtmlMediaView` or `video_player` package
 - `lib/focus/` — D-pad navigation irrelevant on web; should be no-op wrappers
 - `lib/widgets/focusable_*` — Conditional render based on platform; web uses pointer/click
 - `lib/services/playback_initialization_service.dart` — Player init differs
+- All other `dart:io` usages (36 files total)
 
-**Effort:** Large — 40-60 files likely need conditional import guards.
+**Effort:** Large — 40-60 files need conditional import guards.
 
 ---
 
@@ -155,7 +170,7 @@ flutter create . --platforms web
 | Milestone | Effort | Dependencies | Delivers |
 |---|---|---|---|
 | M0: Audit | 1-2h | None | Go/no-go decision |
-| M1: Conditional imports | 1-2 weeks | M0 | Compiles on web (no features) |
+| M1: Conditional imports | 1-2 weeks | M0 | Compiles on web (no features) — **database layer done, 35 more files remain** |
 | M2: Web player | 2-4 weeks | M1 | Playback works |
 | M3: Offline storage | 1-2 weeks | M1 | Download + cache work |
 | M4: Build & CI | 1-2 days | M0 | Automated web build |
