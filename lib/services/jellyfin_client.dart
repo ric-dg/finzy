@@ -1277,25 +1277,25 @@ class JellyfinClient {
         } else if (forceTranscode && (maxStreamingBitrate ?? 0) > 0) {
           // User requested transcode but server returned no TranscodingUrl; build transcoding URL
           final bitrate = maxStreamingBitrate ?? 0;
-          url = '/Videos/$itemId/stream.mp4?MaxStreamingBitrate=$bitrate&VideoCodec=h264&AudioCodec=aac&api_key=${config.token}';
+          url = '/Videos/$itemId/stream.mp4?MaxStreamingBitrate=$bitrate&VideoCodec=h264&AudioCodec=aac&ApiKey=${config.token}';
           if (sourceId.isNotEmpty) url = '$url&mediaSourceId=$sourceId';
           urlSource = 'Transcoding (built fallback)';
         } else if (supportsDirect && container.isNotEmpty) {
           // Server returned no URLs but supports direct stream (matches Live TV fallback pattern)
-          url = '/Videos/$itemId/stream.$container?Static=true&api_key=${config.token}';
+          url = '/Videos/$itemId/stream.$container?Static=true&ApiKey=${config.token}';
           if (sourceId.isNotEmpty) url = '$url&mediaSourceId=$sourceId';
           urlSource = 'DirectStream (Static fallback)';
         } else {
           // Last resort: generic stream endpoint (server will choose format)
-          url = '/Videos/$itemId/stream?api_key=${config.token}';
+          url = '/Videos/$itemId/stream?ApiKey=${config.token}';
           if (sourceId.isNotEmpty) url = '$url&mediaSourceId=$sourceId';
           urlSource = 'stream (generic fallback)';
         }
         appLogger.d('PlaybackInfo: chose $urlSource isTranscode=${urlSource.startsWith("Transcod")} (directUrl=${directUrl != null && directUrl.isNotEmpty}, transcodeUrl=${transcodeUrl != null && transcodeUrl.isNotEmpty}, supportsDirect=$supportsDirect, container=$container) maxStreamingBitrate=${maxStreamingBitrate ?? "none"}');
         if (!url.startsWith('http')) {
           url = '${config.baseUrl}${url.startsWith('/') ? url : '/$url'}';
-          if (!url.contains('api_key=')) {
-            url = url.contains('?') ? '$url&api_key=${config.token}' : '$url?api_key=${config.token}';
+          if (!url.contains('ApiKey=')) {
+            url = url.contains('?') ? '$url&ApiKey=${config.token}' : '$url?ApiKey=${config.token}';
           }
         }
         final isTranscode = urlSource.startsWith('Transcod');
@@ -1480,7 +1480,7 @@ class JellyfinClient {
             }
 
             if (videoUrl != null) {
-              final urlForLog = videoUrl.replaceAll(RegExp(r'api_key=[^&]+'), 'api_key=***');
+              final urlForLog = videoUrl.replaceAll(RegExp(r'ApiKey=[^&]+'), 'ApiKey=***');
               appLogger.d('Playback: final url=$urlForLog');
             }
             final audioTracks = <MediaAudioTrack>[];

@@ -291,6 +291,9 @@ class DownloadManagerService {
   // Dio-based transcode downloads on desktop (background_downloader fails with chunked streams)
   final Map<String, CancelToken> _dioTranscodeCancelTokens = {};
 
+  // Dio-based direct downloads on Windows (bypass background_downloader's %TEMP% behavior)
+  final Map<String, CancelToken> _dioDirectCancelTokens = {};
+
   /// Public method to check if downloads should be blocked due to cellular-only setting
   /// Can be used by DownloadProvider to show user-friendly error
   static Future<bool> shouldBlockDownloadOnCellular() async {
@@ -674,24 +677,40 @@ class DownloadManagerService {
 
         // On desktop, background_downloader fails to write chunked transcode streams (zero bytes).
         // Use Dio directly for transcode downloads.
-        final useDioTranscode = isTranscode &&
-            (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+        final useDio = Platform.isWindows;
 
-        if (useDioTranscode) {
-          _runDioTranscodeDownload(
-            globalKey: globalKey,
-            url: playbackData.videoUrl!,
-            filePath: downloadFilePath,
-            headers: client.requestHeaders,
-            metadata: metadata,
-            queueItem: queueItem,
-            displayName: displayName,
-            extension: ext,
-            showYear: showYear,
-            mediaInfo: playbackData.mediaInfo,
-            downloadQuality: downloadQuality,
-            client: client,
-          );
+        if (useDio) {
+          if (isTranscode) {
+            _runDioTranscodeDownload(
+              globalKey: globalKey,
+              url: playbackData.videoUrl!,
+              filePath: downloadFilePath,
+              headers: client.requestHeaders,
+              metadata: metadata,
+              queueItem: queueItem,
+              displayName: displayName,
+              extension: ext,
+              showYear: showYear,
+              mediaInfo: playbackData.mediaInfo,
+              downloadQuality: downloadQuality,
+              client: client,
+            );
+          } else {
+            _runDioDirectDownload(
+              globalKey: globalKey,
+              url: playbackData.videoUrl!,
+              filePath: downloadFilePath,
+              headers: client.requestHeaders,
+              metadata: metadata,
+              queueItem: queueItem,
+              displayName: displayName,
+              extension: ext,
+              showYear: showYear,
+              mediaInfo: playbackData.mediaInfo,
+              downloadQuality: downloadQuality,
+              client: client,
+            );
+          }
           return;
         }
 
@@ -1001,6 +1020,151 @@ class DownloadManagerService {
       await _onDownloadFailed(globalKey, e.toString());
     } finally {
       _stopTranscodePoll(globalKey);
+    }
+  }
+
+  /// Direct download via Dio with HTTP Range resume support (Windows).
+  /// Unlike background_downloader on Windows, this writes directly to the target
+  /// path instead of going through %TEMP% first.
+  Future<void> _runDioDirectDownload({
+    required String globalKey,
+    required String url,
+    required String filePath,
+    required Map<String, String> headers,
+    required MediaMetadata metadata,
+    required DownloadQueueItem queueItem,
+    required String displayName,
+    required String extension,
+    int? showYear,
+    MediaInfo? mediaInfo,
+    required DownloadQuality downloadQuality,
+    required JellyfinClient client,
+  }) async {
+    final cancelToken = CancelToken();
+    _dioDirectCancelTokens[globalKey] = cancelToken;
+
+    _pendingDownloadContext[globalKey] = _DownloadContext(
+      metadata: metadata,
+      queueItem: queueItem,
+      filePath: filePath,
+      extension: extension,
+      client: client,
+      showYear: showYear,
+      isSafMode: false,
+      mediaInfo: mediaInfo,
+      downloadQuality: downloadQuality,
+    );
+
+    try {
+      final file = File(filePath);
+      int startBytes = 0;
+      if (await file.exists()) {
+        startBytes = await file.length();
+      }
+
+      final requestHeaders = Map<String, dynamic>.from(headers);
+      if (startBytes > 0) {
+        requestHeaders['Range'] = 'bytes=$startBytes-';
+      }
+
+      final response = await _dio.get<ResponseBody>(
+        url,
+        options: Options(
+          headers: requestHeaders,
+          responseType: ResponseType.stream,
+          receiveTimeout: const Duration(hours: 4),
+          sendTimeout: const Duration(seconds: 30),
+        ),
+        cancelToken: cancelToken,
+      );
+
+      // If server ignored Range request (returned 200 instead of 206), start from scratch
+      if (startBytes > 0 && response.statusCode == 200) {
+        startBytes = 0;
+      }
+
+      // Determine total bytes for progress tracking
+      int totalBytes = 0;
+      final contentLength = response.headers.value('content-length');
+      if (contentLength != null) {
+        totalBytes = int.tryParse(contentLength) ?? 0;
+        if (startBytes > 0) totalBytes += startBytes;
+      }
+
+      int received = startBytes;
+      final sink = file.openWrite(mode: startBytes > 0 ? FileMode.append : FileMode.write);
+
+      final completer = Completer<void>();
+      late StreamSubscription<List<int>> subscription;
+      subscription = response.data!.stream.listen(
+        (chunk) {
+          if (_disposed || cancelToken.isCancelled) {
+            subscription.cancel();
+            sink.close();
+            completer.complete();
+            return;
+          }
+          sink.add(chunk);
+          received += chunk.length;
+          final progress = totalBytes > 0
+              ? ((received / totalBytes) * 100).round().clamp(0, 99)
+              : received > 0 ? 1 : 0;
+          _progressController.add(
+            DownloadProgress(
+              globalKey: globalKey,
+              status: DownloadStatus.downloading,
+              progress: progress,
+              downloadedBytes: received,
+              totalBytes: totalBytes,
+              currentFile: 'video',
+            ),
+          );
+        },
+        onDone: () {
+          sink.close();
+          completer.complete();
+        },
+        onError: (e) {
+          sink.close();
+          completer.completeError(e);
+        },
+        cancelOnError: true,
+      );
+
+      cancelToken.whenCancel.then((_) {
+        subscription.cancel().catchError((_) {});
+        sink.close().catchError((_) {});
+      });
+
+      await completer.future;
+
+      if (_disposed || cancelToken.isCancelled) return;
+
+      _dioDirectCancelTokens.remove(globalKey);
+      final task = DownloadTask(
+        url: url,
+        filename: path.basename(filePath),
+        directory: path.dirname(filePath),
+        baseDirectory: BaseDirectory.root,
+        group: _downloadGroup,
+        metaData: globalKey,
+        displayName: displayName,
+      );
+      await _onDownloadComplete(globalKey, task);
+    } on DioException catch (e) {
+      _dioDirectCancelTokens.remove(globalKey);
+      if (e.type == DioExceptionType.cancel) {
+        await _transitionStatus(globalKey, DownloadStatus.cancelled);
+        await _database.removeFromQueue(globalKey);
+      } else {
+        await _onDownloadFailed(
+          globalKey,
+          e.response?.statusMessage ?? e.message ?? 'Download failed',
+        );
+      }
+    } catch (e) {
+      _dioDirectCancelTokens.remove(globalKey);
+      await _onDownloadFailed(globalKey, e.toString());
     }
   }
 
@@ -1540,10 +1704,19 @@ class DownloadManagerService {
 
     try {
       // Dio transcode downloads: cancel (no pause support)
-      final cancelToken = _dioTranscodeCancelTokens.remove(globalKey);
+      CancelToken? cancelToken = _dioTranscodeCancelTokens.remove(globalKey);
       if (cancelToken != null) {
         cancelToken.cancel('User paused');
         _stopTranscodePoll(globalKey);
+        _pendingDownloadContext.remove(globalKey);
+        await _transitionStatus(globalKey, DownloadStatus.paused);
+        await _database.removeFromQueue(globalKey);
+        return;
+      }
+      // Dio direct downloads: cancel (no pause support)
+      cancelToken = _dioDirectCancelTokens.remove(globalKey);
+      if (cancelToken != null) {
+        cancelToken.cancel('User paused');
         _pendingDownloadContext.remove(globalKey);
         await _transitionStatus(globalKey, DownloadStatus.paused);
         await _database.removeFromQueue(globalKey);
@@ -1608,7 +1781,11 @@ class DownloadManagerService {
   /// Removes the record and any partial files so the movie page shows "Download" again.
   Future<void> cancelDownload(String globalKey) async {
     _autoRetryTimers.remove(globalKey)?.cancel();
-    final cancelToken = _dioTranscodeCancelTokens.remove(globalKey);
+    CancelToken? cancelToken = _dioTranscodeCancelTokens.remove(globalKey);
+    if (cancelToken != null) {
+      cancelToken.cancel('User cancelled');
+    }
+    cancelToken = _dioDirectCancelTokens.remove(globalKey);
     if (cancelToken != null) {
       cancelToken.cancel('User cancelled');
     }
@@ -1637,7 +1814,9 @@ class DownloadManagerService {
   Future<void> deleteDownload(String globalKey) async {
     _autoRetryTimers.remove(globalKey)?.cancel();
     // Cancel if actively downloading (Dio or background_downloader)
-    final cancelToken = _dioTranscodeCancelTokens.remove(globalKey);
+    CancelToken? cancelToken = _dioTranscodeCancelTokens.remove(globalKey);
+    if (cancelToken != null) cancelToken.cancel('User deleted');
+    cancelToken = _dioDirectCancelTokens.remove(globalKey);
     if (cancelToken != null) cancelToken.cancel('User deleted');
     final bgTaskId = await _database.getBgTaskId(globalKey);
     if (bgTaskId != null) {
@@ -2155,6 +2334,10 @@ class DownloadManagerService {
       token.cancel('Service disposed');
     }
     _dioTranscodeCancelTokens.clear();
+    for (final token in _dioDirectCancelTokens.values) {
+      token.cancel('Service disposed');
+    }
+    _dioDirectCancelTokens.clear();
     _progressController.close();
     _deletionProgressController.close();
   }
