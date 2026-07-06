@@ -179,6 +179,25 @@ flutter create . --platforms web
 
 ---
 
+## PWA Enhancements (post-MVP)
+
+These are additive enhancements that distinguish a real PWA from "a website that kinda works." None block the MVP — they layer on after playback ships.
+
+| Enhancement | Label | Effort | Notes |
+|---|---|---|---|
+| **Media Session API** | `enhancement` | Small | Lockscreen/notification media controls (play/pause/seek, cover art). Browser-native — no package needed |
+| **Screen Wake Lock** | `enhancement` | Small | Keep screen on during playback. `wakelock_plus` supports web via Wake Lock API, needs verification |
+| **Picture-in-Picture** | `enhancement` | Small | Floating video window while browsing. Already partially wired in player — expose PiP API for web |
+| **Background sync (Service Worker)** | `enhancement` | Medium | Sync watch progress to server when connectivity returns. Periodic background sync API |
+| **Cast to TV (Chromecast)** | `enhancement` | Medium | Remote Playback API or server-side cast. Depends on Jellyfin server cast support |
+| **Share Target API** | `enhancement` | Small | PWA appears in system share sheet — receive URLs/files directly |
+| **Keyboard shortcuts** | `enhancement` | Small | Already in M5 baseline. Add J/K/L (YouTube-style) on top of Space/F/arrows |
+| **Custom title bar** | `enhancement` | Small | `windowControlsOverlay` for installed PWA on desktop — hide browser chrome |
+| **Auto-update Service Worker** | `enhancement` | Small | Prompt "new version available, refresh?" on deploy. Standard SW pattern |
+| **Drag & drop upload** | `enhancement` | Small | Drag media files from desktop onto the app to upload to server |
+
+---
+
 ## Go/No-Go Questions
 
 Before starting, answer:
