@@ -71,6 +71,7 @@ class DownloadProvider extends ChangeNotifier {
 
   /// Load all persisted downloads and metadata from the database/cache
   Future<void> _loadPersistedDownloads() async {
+    if (kIsWeb) return;
     try {
       // Wait for recovery to finish before loading state so that
       // interrupted "downloading" rows have been transitioned to "queued"
