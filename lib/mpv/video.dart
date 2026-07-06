@@ -74,6 +74,12 @@ class _VideoState extends State<Video> {
   }
 
   Widget _buildVideoSurface() {
+    // For web players, render the browser <video> element via HtmlElementView
+    final webViewType = widget.player.webViewType;
+    if (webViewType != null) {
+      return HtmlElementView(viewType: webViewType);
+    }
+
     // For players that use Flutter's texture pipeline (Linux FlTextureGL),
     // render directly via the Texture widget.
     final textureId = widget.player.textureId;

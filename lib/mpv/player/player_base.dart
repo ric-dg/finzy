@@ -36,6 +36,9 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
   @override
   int? get textureId => null;
 
+  @override
+  String? get webViewType => null;
+
   StreamSubscription? _eventSubscription;
   StreamSubscription? _logSubscription;
   bool _disposed = false;

@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import '../models.dart';
 import 'player_android.dart';
 import 'player_native.dart';
@@ -7,6 +9,7 @@ import 'player_state.dart';
 import 'player_streams.dart';
 import 'platform/player_linux.dart';
 import 'platform/player_windows.dart';
+import 'player_web_stub.dart' if (dart.library.html) 'player_web.dart';
 
 export 'player_base.dart';
 
@@ -49,6 +52,13 @@ abstract class Player {
   /// This is set by the platform implementation when video
   /// rendering is initialized. Returns null if not ready.
   int? get textureId;
+
+  /// View type identifier for web [HtmlElementView] rendering.
+  ///
+  /// Returns null on native platforms where video is rendered via
+  /// [Texture] or native window embedding. Non-null only on web
+  /// where the player wraps a browser `<video>` element.
+  String? get webViewType => null;
 
   /// The type of player backend being used (e.g., 'mpv', 'exoplayer').
   String get playerType;
@@ -263,6 +273,9 @@ abstract class Player {
   /// - true: Use ExoPlayer (default, better hardware support)
   /// - false: Use MPV (more features, ASS subtitle rendering)
   factory Player({bool? useExoPlayer}) {
+    if (kIsWeb) {
+      return createWebPlayer();
+    }
     if (Platform.isAndroid) {
       // Default to ExoPlayer on Android, with MPV as fallback
       // The caller should pass useExoPlayer based on SettingsService.getUseExoPlayer()
