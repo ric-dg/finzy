@@ -57,3 +57,10 @@ maestro/**/*.png
 
 # Claude Code per-developer settings
 .claude/settings.local.json
+
+# Local dev tool configs
+mise.toml
+
+# Web build artifacts (compiled from web/drift_worker.dart)
+web/drift_worker.dart.js.deps
+web/drift_worker.dart.js.map
