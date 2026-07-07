@@ -73,24 +73,42 @@ Replace unconditional imports of `dart:io` and native-only packages with conditi
 | `~/.pub-cache/universal_gamepad-1.5.7` | Patched to export `WebGamepad` (package bug — missing web export) |
 
 **Build status:**
-- `flutter build web` — **succeeds** ✅ (JS output, 5.4MB `main.dart.js`)
-- `flutter analyze` — **clean** (0 errors, 0 warnings, 3 info-level build artifact notes)
+- `flutter build web` — **succeeds** ✅ (JS output)
+- `flutter analyze` — **clean** (0 errors, 0 warnings)
 - `flutter analyze` on native — **clean** ✅
+- Runtime DB: `sqlite3.wasm` + `drift_worker.dart.js` in `web/` ✅
 
-**Remaining work for full M1 (not done yet):**
+**Completed (P0–P2):**
 
-- `lib/main.dart` — Guard `window_manager` init, `GamepadService`, `MacOSTitlebarService`
-- `lib/services/download_manager_service.dart` — Guard all `File`, `Directory`, `Platform` usage
-- `lib/services/download_storage_service.dart` — Web stub
-- `lib/services/api_cache.dart` — `File` usage needs IndexedDB or memory cache fallback
-- `lib/services/offline_watch_sync_service.dart` — `File` usage
-- `lib/mpv/` — Entire player layer; web uses `HtmlMediaView` or `video_player` package
-- `lib/focus/` — D-pad navigation irrelevant on web; should be no-op wrappers
-- `lib/widgets/focusable_*` — Conditional render based on platform; web uses pointer/click
-- `lib/services/playback_initialization_service.dart` — Player init differs
-- All other `dart:io` usages (36 files total)
+| Area | Files changed |
+|---|---|
+| Database split (native vs web) | `app_database.dart`, `connection_native.dart`, `connection_web.dart` |
+| Main.dart platform guards | `window_manager`, `GamepadService`, `MacOSTitlebarService`, `FullscreenStateManager`, `TvDetectionService`, `PipService`, shader licenses |
+| Web player (browser `<video>`) | `player.dart`, `player_web.dart`, `player_web_stub.dart`, `player_base.dart`, `video.dart` |
+| Eager startup crash fixes | `in_app_review_service.dart` — `kIsWeb` in `isEnabled`; `download_provider.dart` — `kIsWeb` in `_loadPersistedDownloads()` |
+| Runtime WASM files | `web/sqlite3.wasm` (from sqlite3.dart v2.9.4), `web/drift_worker.dart` + compiled `web/drift_worker.dart.js` |
 
-**Effort:** Large — 40-60 files need conditional import guards.
+**Remaining (deferred paths — crash when user navigates to feature, not at startup):**
+
+Files that construct `File`/`Directory`/`Process` objects (need `kIsWeb` guards):
+- `lib/services/download_manager_service.dart` — `File`, `Platform.isWindows`
+- `lib/services/download_storage_service.dart` — `File`, `Directory`, `Platform.isAndroid`
+- `lib/services/shader_asset_loader.dart` — `File`, `Directory`, `path_provider`
+- `lib/services/ambient_lighting_service.dart` — `Socket`/`dart:io`
+- `lib/services/external_player_service.dart` — `Process`, `Platform`
+- `lib/services/playback_initialization_service.dart` — `File` (offline media paths)
+- `lib/services/saf_storage_service.dart` — Android SAF only
+- `lib/mpv/font_loader.dart` — `File` (subtitle font loading)
+- `lib/widgets/optimized_image.dart` — `File` (disk cache)
+- `lib/screens/settings/settings_screen.dart` — `Platform` checks
+- `lib/screens/media_detail_screen.dart` — `Platform` + local path
+- `lib/screens/season_detail_screen.dart` — `Platform` + local path
+
+Files with only `Platform.isXxx` checks (safe on web — stub returns `false`):
+- `lib/services/jellyfin_client.dart`, `offline_watch_sync_service.dart`, `watch_next_service.dart`, `keyboard_shortcuts_service.dart`, `macos_titlebar_service.dart`, `macos_window_service.dart`, `fullscreen_state_manager.dart`, `gamepad_service.dart`, `pip_service.dart`, `platform_detector.dart`
+- Various screen/widget files with TV/desktop-specific `Platform` checks
+
+**Effort:** Medium — ~12 files with File/Directory/Process need guards. ~20 Platform-only files are safe as-is.
 
 ---
 
@@ -170,7 +188,7 @@ flutter create . --platforms web
 | Milestone | Effort | Dependencies | Delivers |
 |---|---|---|---|
 | M0: Audit | 1-2h | None | Go/no-go decision |
-| M1: Conditional imports | 1-2 weeks | M0 | Compiles on web (no features) — **database layer done, 35 more files remain** |
+| M1: Conditional imports | 1-2 weeks | M0 | Compiles on web — **database, main.dart guards, player done** ✅ |
 | M2: Web player | 2-4 weeks | M1 | Playback works |
 | M3: Offline storage | 1-2 weeks | M1 | Download + cache work |
 | M4: Build & CI | 1-2 days | M0 | Automated web build |
