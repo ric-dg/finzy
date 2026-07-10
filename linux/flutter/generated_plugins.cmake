@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   os_media_controls
   screen_retriever_linux
-  sqlite3_flutter_libs
   universal_gamepad
   url_launcher_linux
   window_manager
