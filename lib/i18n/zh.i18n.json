@@ -612,7 +612,11 @@
     "openSourceLicenses": "开源许可证",
     "versionLabel": "版本 ${version}",
     "appDescription": "一款精美的 Flutter Jellyfin 客户端",
-    "viewLicensesDescription": "查看第三方库的许可证"
+    "viewLicensesDescription": "查看第三方库的许可证",
+    "installApp": "安装应用",
+    "installAppDescription": "将 Finzy 安装为独立应用",
+    "installAppSuccess": "应用安装成功",
+    "installAppFailed": "应用安装已取消"
   },
   "serverSelection": {
     "allServerConnectionsFailed": "无法连接到任何服务器。请检查你的网络并重试。",

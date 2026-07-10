@@ -235,6 +235,7 @@ class AmbientLightingService {
 
   /// Write the shader to a temp file and return the path.
   Future<String> _writeShaderToTemp(String shader) async {
+    if (kIsWeb) return '';
     final cacheDir = await getTemporaryDirectory();
     final shaderDir = Directory(path.join(cacheDir.path, 'shaders'));
     if (!shaderDir.existsSync()) {

@@ -612,7 +612,11 @@
     "openSourceLicenses": "Licenze Open Source",
     "versionLabel": "Versione ${version}",
     "appDescription": "Un bellissimo client Jellyfin per Flutter",
-    "viewLicensesDescription": "Visualizza le licenze delle librerie di terze parti"
+    "viewLicensesDescription": "Visualizza le licenze delle librerie di terze parti",
+    "installApp": "Installa app",
+    "installAppDescription": "Installa Finzy come applicazione autonoma",
+    "installAppSuccess": "App installata con successo",
+    "installAppFailed": "Installazione annullata"
   },
   "serverSelection": {
     "allServerConnectionsFailed": "Impossibile connettersi a nessun server. Controlla la tua rete e riprova.",

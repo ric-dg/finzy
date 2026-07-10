@@ -9,6 +9,7 @@ import 'player.dart';
 import 'player_state.dart';
 import 'player_stream_controllers.dart';
 import 'player_streams.dart';
+import 'web_media_session.dart';
 
 Player createWebPlayer() => PlayerWeb();
 
@@ -83,6 +84,7 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
           final pos = Duration(milliseconds: (seconds * 1000).round());
           _state = _state.copyWith(position: pos);
           positionController.add(pos);
+          WebMediaSession.setPositionState(pos, _state.duration, _state.rate);
         }
       }),
       video.onDurationChange.listen((_) {
@@ -92,6 +94,7 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
           final dur = Duration(milliseconds: (seconds * 1000).round());
           _state = _state.copyWith(duration: dur);
           durationController.add(dur);
+          WebMediaSession.setPositionState(_state.position, dur, _state.rate);
         }
       }),
       video.onEnded.listen((_) {
@@ -168,6 +171,9 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
     positionController.add(Duration.zero);
     durationController.add(Duration.zero);
 
+    WebMediaSession.setMetadata(media);
+    WebMediaSession.setActionHandlers(this);
+
     if (play) {
       try {
         await video.play().toDart;
@@ -184,6 +190,7 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
 
     try {
       await video.play().toDart;
+      WebMediaSession.setPlaybackState(true);
     } catch (e) {
       errorController.add('Play failed: $e');
     }
@@ -195,6 +202,7 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
     if (video == null || _disposed) return;
 
     video.pause();
+    WebMediaSession.setPlaybackState(false);
   }
 
   @override
@@ -226,6 +234,9 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
     completedController.add(false);
     positionController.add(Duration.zero);
     bufferingController.add(false);
+
+    WebMediaSession.clearMetadata();
+    WebMediaSession.clearActionHandlers();
   }
 
   @override
@@ -234,6 +245,7 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
     if (video == null || _disposed) return;
 
     video.currentTime = position.inMilliseconds / 1000;
+    WebMediaSession.setPositionState(position, _state.duration, _state.rate);
   }
 
   @override
@@ -369,6 +381,8 @@ class PlayerWeb with PlayerStreamControllersMixin implements Player {
     }
 
     _videoElement = null;
+    WebMediaSession.clearMetadata();
+    WebMediaSession.clearActionHandlers();
     await closeStreamControllers();
   }
 }

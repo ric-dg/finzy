@@ -10,6 +10,7 @@ import '../database/app_database.dart';
 import 'download_storage_service.dart';
 import 'settings_service.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 
 /// Service responsible for fetching video playback data from the media server
@@ -57,7 +58,7 @@ class PlaybackInitializationService {
       final readablePath = await storageService.getReadablePath(storedPath);
 
       // For file paths (not SAF), verify the file exists
-      if (!storageService.isSafUri(storedPath)) {
+      if (!kIsWeb && !storageService.isSafUri(storedPath)) {
         final file = File(readablePath);
         if (!await file.exists()) {
           appLogger.w('Offline video file not found: $readablePath (stored as: $storedPath)');

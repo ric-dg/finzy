@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
@@ -1886,7 +1887,7 @@ class _MediaDetailScreenState extends State<MediaDetailScreen> with WatchStateAw
                             ? Builder(
                                 builder: (context) {
                                   // Check for offline local file first
-                                  if (widget.isOffline && widget.metadata.serverId != null) {
+                                  if (!kIsWeb && widget.isOffline && widget.metadata.serverId != null) {
                                     final localPath = context.read<DownloadProvider>().getArtworkLocalPath(
                                       widget.metadata.serverId!,
                                       metadata.art,
@@ -1987,7 +1988,7 @@ class _MediaDetailScreenState extends State<MediaDetailScreen> with WatchStateAw
                                     child: Builder(
                                       builder: (context) {
                                         // Check for offline local file first
-                                        if (widget.isOffline && widget.metadata.serverId != null) {
+                                        if (!kIsWeb && widget.isOffline && widget.metadata.serverId != null) {
                                           final localPath = context.read<DownloadProvider>().getArtworkLocalPath(
                                             widget.metadata.serverId!,
                                             metadata.clearLogo,

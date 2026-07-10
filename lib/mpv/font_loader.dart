@@ -15,6 +15,7 @@ class SubtitleFontLoader {
   /// Loads the subtitle font from assets to the cache directory.
   /// Returns the directory path containing the font file.
   static Future<String?> loadSubtitleFont() async {
+    if (kIsWeb) return null;
     try {
       // Get the app's cache directory
       final cacheDir = await getTemporaryDirectory();

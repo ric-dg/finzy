@@ -18,18 +18,21 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Finzy – Jellyfin client for movies, TV shows, and music.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="finzy">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Finzy">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#1A1F2E">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>finzy</title>
+  <title>Finzy</title>
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -41,6 +44,42 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <!-- Register custom service worker for offline caching -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service_worker.js');
+      });
+    }
+
+    // PWA install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+    });
+
+    // Called from Flutter via JS interop to trigger the install prompt.
+    // Returns true if the user accepted, false otherwise.
+    window.installPwa = function() {
+      if (!window.deferredPrompt) return Promise.resolve(false);
+      const prompt = window.deferredPrompt;
+      window.deferredPrompt = null;
+      return prompt.prompt().then(function(result) {
+        return result.outcome === 'accepted';
+      }).catch(function() {
+        return false;
+      });
+    };
+
+    // Check if the PWA install prompt is available
+    window.isPwaInstallable = function() {
+      return window.deferredPrompt != null;
+    };
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

@@ -134,7 +134,7 @@ class SafStorageService {
     String fileName,
     String mimeType,
   ) async {
-    if (!isAvailable) return null;
+    if (kIsWeb || !isAvailable) return null;
 
     try {
       final sourceFile = File(sourceFilePath);

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:finzy/widgets/app_icon.dart';
@@ -282,7 +283,7 @@ class OptimizedImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Check for local file first
-    if (localFilePath != null) {
+    if (localFilePath != null && !kIsWeb) {
       final file = File(localFilePath!);
       if (file.existsSync()) {
         return blurArtwork(

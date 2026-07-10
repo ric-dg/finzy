@@ -612,7 +612,11 @@
     "openSourceLicenses": "Öppen källkod-licenser",
     "versionLabel": "Version ${version}",
     "appDescription": "En vacker Jellyfin-klient för Flutter",
-    "viewLicensesDescription": "Visa licenser för tredjepartsbibliotek"
+    "viewLicensesDescription": "Visa licenser för tredjepartsbibliotek",
+    "installApp": "Installera app",
+    "installAppDescription": "Installera Finzy som en fristående applikation",
+    "installAppSuccess": "Appen installerades",
+    "installAppFailed": "Installationen avbröts"
   },
   "serverSelection": {
     "allServerConnectionsFailed": "Misslyckades att ansluta till servrar. Kontrollera ditt nätverk och försök igen.",

@@ -4,6 +4,7 @@ import 'package:background_downloader/background_downloader.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:finzy/utils/content_utils.dart';
 import '../database/app_database.dart';
@@ -324,7 +325,7 @@ class DownloadManagerService {
 
   /// Initialize background_downloader with callbacks, notifications, and concurrency config.
   Future<void> _initializeFileDownloader() async {
-    if (_fileDownloaderInitialized) return;
+    if (kIsWeb || _fileDownloaderInitialized) return;
 
     FileDownloader()
         .registerCallbacks(
@@ -356,6 +357,7 @@ class DownloadManagerService {
   /// Uses background_downloader's rescheduleKilledTasks for native recovery,
   /// then scans drift for orphaned items.
   Future<void> recoverInterruptedDownloads() async {
+    if (kIsWeb) return;
     try {
       await _initializeFileDownloader();
 
@@ -535,7 +537,7 @@ class DownloadManagerService {
   /// Process the download queue — prepares and enqueues items with background_downloader.
   /// Non-blocking: returns after all queued items are enqueued (downloads run natively).
   Future<void> _processQueue(JellyfinClient client) async {
-    if (_isProcessingQueue) return;
+    if (kIsWeb || _isProcessingQueue) return;
     _isProcessingQueue = true;
     _lastClient = client;
 

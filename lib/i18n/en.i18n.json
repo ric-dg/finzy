@@ -611,7 +611,11 @@
     "openSourceLicenses": "Open Source Licenses",
     "versionLabel": "Version ${version}",
     "appDescription": "A beautiful Jellyfin client",
-    "viewLicensesDescription": "View licenses of third-party libraries"
+    "viewLicensesDescription": "View licenses of third-party libraries",
+    "installApp": "Install App",
+    "installAppDescription": "Install Finzy as a standalone application",
+    "installAppSuccess": "App installed successfully",
+    "installAppFailed": "App installation was cancelled"
   },
   "serverSelection": {
     "allServerConnectionsFailed": "Failed to connect to any servers. Please check your network and try again.",

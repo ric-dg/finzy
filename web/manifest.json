@@ -1,12 +1,14 @@
 {
-    "name": "finzy",
-    "short_name": "finzy",
+    "name": "Finzy",
+    "short_name": "Finzy",
     "start_url": ".",
+    "scope": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "display_override": ["standalone", "minimal-ui"],
+    "background_color": "#1A1F2E",
+    "theme_color": "#1A1F2E",
+    "description": "Jellyfin client for movies, TV shows, and music.",
+    "categories": ["entertainment", "video", "music"],
     "prefer_related_applications": false,
     "icons": [
         {

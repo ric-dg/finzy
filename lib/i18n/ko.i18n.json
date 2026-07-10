@@ -612,7 +612,11 @@
     "openSourceLicenses": "오픈소스 라이선스",
     "versionLabel": "버전 ${version}",
     "appDescription": "아름다운 Flutter Jellyfin 클라이언트",
-    "viewLicensesDescription": "타사 라이브러리 라이선스 보기"
+    "viewLicensesDescription": "타사 라이브러리 라이선스 보기",
+    "installApp": "앱 설치",
+    "installAppDescription": "Finzy를 독립 실행형 애플리케이션으로 설치",
+    "installAppSuccess": "앱이 성공적으로 설치됨",
+    "installAppFailed": "앱 설치가 취소됨"
   },
   "serverSelection": {
     "allServerConnectionsFailed": "어떤 서버에도 연결할 수 없습니다. 네트워크를 확인하고 다시 시도하세요.",

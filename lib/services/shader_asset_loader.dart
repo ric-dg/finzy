@@ -81,6 +81,7 @@ class ShaderAssetLoader {
   /// Get the shader file paths for NVScaler preset.
   /// Returns a list containing the single NVScaler shader path.
   static Future<List<String>> getNVScalerShaders() async {
+    if (kIsWeb) return [];
     final shaderPath = await _extractShader(_nvscalerShader);
     if (shaderPath == null) return [];
     return [shaderPath];
@@ -89,6 +90,7 @@ class ShaderAssetLoader {
   /// Get the shader file paths for an Anime4K preset.
   /// Returns a list of shader paths in the correct order for MPV.
   static Future<List<String>> getAnime4KShaders(Anime4KConfig config) async {
+    if (kIsWeb) return [];
     final shaders = <String>[];
     final quality = config.quality;
     final mode = config.mode;
@@ -191,6 +193,7 @@ class ShaderAssetLoader {
   /// Pre-extract all shader files to the cache.
   /// Call this at startup to avoid extraction delay during playback.
   static Future<void> preloadShaders() async {
+    if (kIsWeb) return;
     try {
       // Extract NVScaler
       await _extractShader(_nvscalerShader);

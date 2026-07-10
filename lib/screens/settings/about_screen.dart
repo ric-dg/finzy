@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:finzy/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../focus/focus_utils.dart';
+import '../../services/pwa_install_service.dart';
 import '../../services/update_service.dart';
 import '../../widgets/focused_scroll_scaffold.dart';
 import '../../i18n/strings.g.dart';
@@ -160,6 +162,27 @@ class _AboutScreenState extends State<AboutScreen> {
                   onTap: _checkForUpdates,
                 ),
               ),
+
+              if (kIsWeb && PwaInstallService.canInstall)
+                Card(
+                  child: ListTile(
+                    leading: const AppIcon(Symbols.package_2_rounded, fill: 1),
+                    title: Text(t.about.installApp),
+                    subtitle: Text(t.about.installAppDescription),
+                    trailing: const AppIcon(Symbols.download_rounded, fill: 1),
+                    onTap: () async {
+                      final installed = await PwaInstallService.promptInstall();
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            installed ? t.about.installAppSuccess : t.about.installAppFailed,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
 
               const SizedBox(height: 24),
             ]),

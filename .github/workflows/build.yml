@@ -862,8 +862,52 @@ jobs:
             finzy-linux-arm64.rpm
             finzy-linux-arm64.pkg.tar.zst
 
+  build-web:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set GIT_COMMIT
+        run: echo "GIT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release --dart-define=GIT_COMMIT=${{ env.GIT_COMMIT }}
+
+      - name: Attest Web build
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: build/web/
+
+      - name: Upload Web build
+        uses: actions/upload-artifact@v5
+        with:
+          name: web-build
+          path: build/web/
+
   create-release:
-    needs: [build-android, build-ios, build-macos, package-windows, build-linux-x64, build-linux-arm64]
+    needs: [build-android, build-ios, build-macos, package-windows, build-linux-x64, build-linux-arm64, build-web]
     runs-on: ubuntu-latest
     permissions:
       contents: write
