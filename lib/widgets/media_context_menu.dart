@@ -11,6 +11,7 @@ import '../providers/settings_provider.dart';
 import '../providers/offline_mode_provider.dart';
 import '../providers/offline_watch_provider.dart';
 import '../utils/provider_extensions.dart';
+import '../utils/video_player_navigation.dart' show kMediaDetailRouteName;
 import '../utils/app_logger.dart';
 import '../utils/error_message_utils.dart';
 import '../utils/library_refresh_notifier.dart';
@@ -404,7 +405,13 @@ class MediaContextMenuState extends State<MediaContextMenu> {
     try {
       final metadata = await client.getMetadataWithImages(itemId);
       if (metadata != null && context.mounted) {
-        await Navigator.push(context, MaterialPageRoute(builder: (context) => screenBuilder(metadata)));
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            settings: const RouteSettings(name: kMediaDetailRouteName),
+            builder: (context) => screenBuilder(metadata),
+          ),
+        );
         widget.onRefresh?.call(widget.item.itemId);
       }
     } catch (e, st) {

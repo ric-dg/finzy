@@ -42,6 +42,7 @@ import 'services/download_manager_service.dart';
 import 'services/pip_service.dart';
 import 'services/download_storage_service.dart';
 import 'services/api_cache.dart';
+import 'services/web_url_service.dart';
 import 'database/app_database.dart';
 import 'utils/app_logger.dart';
 import 'utils/orientation_helper.dart';
@@ -145,6 +146,9 @@ void main() async {
 
   // Register bundled shader licenses
   _registerShaderLicenses();
+
+  // Initialize browser URL strategy for PWA (no-op on non-web)
+  WebUrlService.init();
 
   runApp(const MainApp());
 }

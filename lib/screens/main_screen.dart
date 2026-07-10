@@ -225,6 +225,7 @@ class _MainScreenState extends State<MainScreen> with RouteAware, WindowListener
 
       Navigator.of(context).push(
         PageRouteBuilder(
+          settings: const RouteSettings(name: kMediaDetailRouteName),
           pageBuilder: (context, _, _) =>
               MediaDetailScreen(metadata: metadata, isOffline: false, onFirstBuild: onRestored),
           transitionDuration: Duration.zero,

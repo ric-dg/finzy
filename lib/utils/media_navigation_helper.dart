@@ -137,6 +137,7 @@ Future<MediaNavigationResult> navigateToMediaItem(
       final result = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
+          settings: const RouteSettings(name: kMediaDetailRouteName),
           builder: (context) => MediaDetailScreen(metadata: metadata, isOffline: isOffline),
         ),
       );

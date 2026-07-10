@@ -57,6 +57,8 @@ dependencies:
   background_downloader: ^9.5.2
   sqlite3_web: ^0.4.1
   web: ^1.1.0
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

@@ -12,6 +12,8 @@ import '../utils/provider_extensions.dart';
 import 'app_logger.dart';
 
 const String kVideoPlayerRouteName = '/video_player';
+const String kMediaDetailRouteName = '/detail';
+const String kHubDetailRouteName = '/hub';
 
 /// Navigates to the VideoPlayerScreen with instant transitions to prevent white flash.
 ///

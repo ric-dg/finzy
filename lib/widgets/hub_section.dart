@@ -17,6 +17,7 @@ import '../models/hub.dart';
 import '../models/media_metadata.dart';
 import '../screens/hub_detail_screen.dart';
 import '../utils/media_navigation_helper.dart';
+import '../utils/video_player_navigation.dart' show kHubDetailRouteName;
 import 'focus_builders.dart';
 import 'media_card.dart';
 import '../utils/scroll_utils.dart';
@@ -328,8 +329,13 @@ class HubSectionState extends State<HubSection> {
   }
 
   void _navigateToHubDetail(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HubDetailScreen(hub: widget.hub)))
-        .then((_) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        settings: const RouteSettings(name: kHubDetailRouteName),
+        builder: (context) => HubDetailScreen(hub: widget.hub),
+      ),
+    ).then((_) {
       if (mounted) {
         requestFocusFromMemory(scrollIntoView: false);
       }
