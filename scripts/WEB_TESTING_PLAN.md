@@ -11,6 +11,9 @@ pip install playwright
 playwright install chromium
 cd build/web
 python3 -m http.server 8000 &
+# or: npx serve build/web
+# or: bunx serve build/web
+# or: cd build/web && npx http-server
 ```
 
 ## Scripts
