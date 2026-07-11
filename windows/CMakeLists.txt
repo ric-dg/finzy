@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.14)
 project(finzy LANGUAGES CXX)
 
 # Download and extract mpv-dev (architecture-dependent)
-set(MPV_VERSION "20260412")
-set(MPV_GIT_HASH "062f4bf")
+set(MPV_VERSION "20260607")
+set(MPV_GIT_HASH "71ebd08")
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
   # ARM64: use file(DOWNLOAD) + 7z extraction (CMake's built-in libarchive
@@ -96,6 +96,7 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
   target_compile_options(${TARGET} PRIVATE /EHsc)
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
+  target_compile_definitions(${TARGET} PRIVATE "_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
 endfunction()
 
