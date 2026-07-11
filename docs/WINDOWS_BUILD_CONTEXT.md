@@ -6,7 +6,7 @@ This covers **x64 Windows** (what you're on). ARM64 has separate CI consideratio
 
 ## Prerequisites (Install These First)
 
-You do **not** need the full Visual Studio IDE. **Visual Studio Build Tools** (command-line only) is sufficient — you can keep VS Code or Neovim as your editor.
+You do **not** need the full Visual Studio IDE. **Visual Studio Build Tools** (command-line only) is sufficient — you can keep VS Code or Neovim as your editor. Do NOT use scoop, winget, or chocolatey for build tools — they don't provide the CMake/MSBuild toolchain Flutter needs.
 
 ### Required installs
 
@@ -14,7 +14,7 @@ You do **not** need the full Visual Studio IDE. **Visual Studio Build Tools** (c
 |------|---------|------|
 | **Visual Studio Build Tools** | Install **"Desktop development with C++"** workload. Inside that workload, these components are needed (usually selected by default with the workload): MSVC v143 C++ x64/x86 build tools, Windows 10/11 SDK, C++ CMake tools for Windows, Windows Universal C Runtime. | [visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022) |
 | **Flutter SDK** | `pubspec.yaml` requires Dart SDK `^3.8.1` (Flutter ≥3.32). Do NOT install via `choco` or `winget` — use the direct archive from flutter.dev so you control the channel. | `git clone https://github.com/flutter/flutter.git -b stable C:\flutter` then add `C:\flutter\bin` to PATH. Verify: `flutter --version` should show Dart 3.8+ |
-| **Git for Windows** | Needed for cloning + git-sourced deps (`os_media_controls`, `wakelock_plus` forks) | [git-scm.com](https://git-scm.com) |
+| **Git for Windows** | Needed for cloning + git-sourced dep (`os_media_controls` fork) | [git-scm.com](https://git-scm.com) |
 | **Windows SDK** | Comes with Build Tools workload above, but if missing: install standalone "Windows 10 SDK" (10.0.20348.0 or later) | [go.microsoft.com/fwlink/?linkid=2271990](https://go.microsoft.com/fwlink/?linkid=2271990) |
 
 ### After install
@@ -60,9 +60,9 @@ You're on an old branch still using `FilePicker.platform`. The static API is `Fi
 
 ### "win32 version conflict"
 If you see `Because ... depends on win32 ^5.x and ... depends on win32 ^6.x, version solving failed`:
-- `file_picker` (all versions) + `wakelock_plus` (git fork) pin `win32 ^5.x`
+- `file_picker` (older versions) pinned `win32 ^5.x`
 - `package_info_plus` >=10.1.0 + `device_info_plus` >=13.1.0 need `win32 ^6.x`
-- **Fix:** Either keep these packages at older versions (current state), or add a `dependency_overrides: win32: ^5.9.0` in `pubspec.yaml` (risky if 6.x packages actually need 6.x APIs).
+- **Current state:** `file_picker` 12.x + `win32` 6.x are compatible. This should not occur on current `main`.
 
 ### "msix build fails"
 MSIX packaging needs Visual Studio. **Fix:** Ensure VS installed, then:
@@ -74,8 +74,8 @@ flutter pub global run msix:create
 ### "Build fails with path too long" (Windows MAX_PATH)
 **Fix:** Clone to a short path like `C:\dev\finzy`. Or enable long paths in Group Policy / registry.
 
-### "Git-sourced dependency fails to fetch" (os_media_controls / wakelock_plus)
-These are pinned to `github.com/dkmcgowan/*` forks in `pubspec.yaml`. **Fix:** Ensure SSH or HTTPS auth to GitHub works. If behind a proxy, set `git config --global http.proxy`.
+### "Git-sourced dependency fails to fetch" (os_media_controls)
+`os_media_controls` is pinned to `github.com/dkmcgowan/media_controls` fork in `pubspec.yaml`. **Fix:** Ensure SSH or HTTPS auth to GitHub works. If behind a proxy, set `git config --global http.proxy`.
 
 ## ARM64 Pin (CI Only)
 

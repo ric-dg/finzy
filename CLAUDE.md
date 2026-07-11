@@ -40,8 +40,8 @@ Notes:
 
 ## Setup gotchas
 
-- **Git-sourced dependencies.** `os_media_controls` and `wakelock_plus` are pinned to forks under `github.com/dkmcgowan/*` in `pubspec.yaml`, not pub.dev. `flutter pub get` needs network access to those repos.
-- **`source_gen` override.** `dependency_overrides` forces `source_gen: ^4.1.2` — without it, `build_runner` breaks against analyzer 8+ (the comment in `pubspec.yaml` explains why). Don't "tidy it away."
+- **Git-sourced dependency.** `os_media_controls` is pinned to a fork under `github.com/dkmcgowan/media_controls` in `pubspec.yaml`, not pub.dev. `flutter pub get` needs network access to that repo.
+- **`source_gen` override.** `dependency_overrides` forces `source_gen: ^4.1.2` — without it, `build_runner` breaks against newer analyzer versions (the comment in `pubspec.yaml` explains why). Don't "tidy it away."
 - **`scripts/release.sh` requires `.env`** at repo root and hard-exits if missing. It shells out to the `claude` CLI to trim per-store changelogs.
 
 ## Architecture
