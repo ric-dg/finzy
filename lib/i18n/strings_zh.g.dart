@@ -350,6 +350,12 @@ class _Translations$settings$zh implements Translations$settings$en {
 	@override String get downloadLocationChanged => '下载位置已更改';
 	@override String get downloadLocationReset => '下载位置已重置为默认';
 	@override String get downloadLocationInvalid => '所选文件夹不可写入';
+	@override String get tempLocation => 'Temp Location';
+	@override String get tempLocationDescription => 'Temporary location for files during download. Files are moved to the download location when complete.';
+	@override String get tempLocationDefault => 'Same as download location';
+	@override String get tempLocationCustom => 'Custom temp folder';
+	@override String get tempLocationChanged => 'Temp location changed';
+	@override String get tempLocationReset => 'Temp location reset to download location';
 	@override String get downloadLocationSelectError => '选择文件夹失败';
 	@override String get downloadOnWifiOnly => '仅在 WiFi 时下载';
 	@override String get downloadOnWifiOnlyDescription => '使用蜂窝数据时禁止下载';
@@ -1546,6 +1552,12 @@ extension on TranslationsZh {
 			'settings.downloadLocationChanged' => '下载位置已更改',
 			'settings.downloadLocationReset' => '下载位置已重置为默认',
 			'settings.downloadLocationInvalid' => '所选文件夹不可写入',
+			'settings.tempLocation' => 'Temp Location',
+			'settings.tempLocationDescription' => 'Temporary location for files during download. Files are moved to the download location when complete.',
+			'settings.tempLocationDefault' => 'Same as download location',
+			'settings.tempLocationCustom' => 'Custom temp folder',
+			'settings.tempLocationChanged' => 'Temp location changed',
+			'settings.tempLocationReset' => 'Temp location reset to download location',
 			'settings.downloadLocationSelectError' => '选择文件夹失败',
 			'settings.downloadOnWifiOnly' => '仅在 WiFi 时下载',
 			'settings.downloadOnWifiOnlyDescription' => '使用蜂窝数据时禁止下载',
@@ -1829,14 +1841,14 @@ extension on TranslationsZh {
 			'libraries.scanLibraryFiles' => '扫描媒体库文件',
 			'libraries.scanLibrary' => '扫描媒体库',
 			'libraries.analyze' => '分析',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyzeLibrary' => '分析媒体库',
 			'libraries.refreshMetadata' => '刷新元数据',
 			'libraries.emptyTrash' => '清空回收站',
 			'libraries.emptyingTrash' => ({required Object title}) => '正在清空 “${title}” 的回收站...',
 			'libraries.trashEmptied' => ({required Object title}) => '已清空 “${title}” 的回收站',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '无法清空回收站: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzing' => ({required Object title}) => '正在分析 “${title}”...',
 			'libraries.analysisStarted' => ({required Object title}) => '已开始分析 “${title}”',
 			'libraries.failedToAnalyze' => ({required Object error}) => '无法分析媒体库: ${error}',

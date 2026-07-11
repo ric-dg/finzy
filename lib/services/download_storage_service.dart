@@ -22,6 +22,11 @@ class DownloadStorageService {
   String? _customDownloadPath;
   String _customPathType = 'file';
 
+  // Custom temp path configuration
+  String? _customTempDownloadPath;
+  String _customTempPathType = 'file';
+  Directory? _baseTempDir;
+
   /// Check if currently using SAF mode (Android only)
   bool get isUsingSaf => Platform.isAndroid && _customPathType == 'saf' && _customDownloadPath != null;
 
@@ -36,8 +41,11 @@ class DownloadStorageService {
     _settingsService = settingsService;
     _customDownloadPath = settingsService.getCustomDownloadPath();
     _customPathType = settingsService.getCustomDownloadPathType();
+    _customTempDownloadPath = settingsService.getCustomTempDownloadPath();
+    _customTempPathType = settingsService.getCustomTempDownloadPathType();
     // Reset cached directories to force recalculation
     _baseDownloadsDir = null;
+    _baseTempDir = null;
     _artworkDirectoryPath = null;
   }
 
@@ -46,7 +54,10 @@ class DownloadStorageService {
     if (_settingsService != null) {
       _customDownloadPath = _settingsService!.getCustomDownloadPath();
       _customPathType = _settingsService!.getCustomDownloadPathType();
+      _customTempDownloadPath = _settingsService!.getCustomTempDownloadPath();
+      _customTempPathType = _settingsService!.getCustomTempDownloadPathType();
       _baseDownloadsDir = null;
+      _baseTempDir = null;
       _artworkDirectoryPath = null;
     }
   }
@@ -120,6 +131,65 @@ class DownloadStorageService {
     final baseDir = await _getBaseAppDir();
     _baseDownloadsDir = await _ensureDirectoryExists(Directory(path.join(baseDir.path, 'downloads')));
     return _baseDownloadsDir!;
+  }
+
+  // ── Temp path ──
+
+  /// Whether a custom temp path is configured (differs from download location)
+  bool isUsingCustomTempPath() => _customTempDownloadPath != null;
+
+  /// Get temp directory — returns custom temp path if set, otherwise falls back to downloads dir.
+  Future<Directory> getTempDownloadsDirectory() async {
+    if (_customTempDownloadPath != null && _customTempPathType == 'file') {
+      final customDir = Directory(_customTempDownloadPath!);
+      if (await isDirectoryWritable(customDir)) {
+        _baseTempDir = customDir;
+        return _baseTempDir!;
+      }
+    }
+    // Fallback: same as final download location
+    return getDownloadsDirectory();
+  }
+
+  /// Display path for settings UI
+  Future<String> getCurrentTempPathDisplay() async {
+    if (_customTempDownloadPath != null) return _customTempDownloadPath!;
+    return (await getDownloadsDirectory()).path;
+  }
+
+  /// Default temp path label (when not using custom)
+  Future<String> getDefaultTempPath() async => (await getDownloadsDirectory()).path;
+
+  /// Build a temp file path for a given filename inside the temp directory.
+  Future<String> getTempFilePath(String fileName) async {
+    final tempDir = await getTempDownloadsDirectory();
+    return path.join(tempDir.path, fileName);
+  }
+
+  /// Move a file from temp to final location. Tries rename (fast, same-fs);
+  /// falls back to copy+delete for cross-filesystem moves.
+  /// Returns the final absolute path on success.
+  Future<String> moveToFinalLocation(String tempPath, String finalPath) async {
+    if (tempPath == finalPath) return finalPath;
+
+    final tempFile = File(tempPath);
+    if (!await tempFile.exists()) {
+      throw Exception('Temp file does not exist: $tempPath');
+    }
+
+    // Ensure parent dir exists at final location
+    await File(finalPath).parent.create(recursive: true);
+
+    // Try fast rename (works on same filesystem)
+    try {
+      await tempFile.rename(finalPath);
+      return finalPath;
+    } on FileSystemException {
+      // Cross-filesystem: copy + delete
+      await tempFile.copy(finalPath);
+      await tempFile.delete();
+      return finalPath;
+    }
   }
 
   /// Get centralized artwork directory for offline artwork caching

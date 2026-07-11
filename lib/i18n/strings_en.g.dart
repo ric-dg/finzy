@@ -803,6 +803,24 @@ class Translations$settings$en {
 	/// en: 'Failed to select folder'
 	String get downloadLocationSelectError => 'Failed to select folder';
 
+	/// en: 'Temp Location'
+	String get tempLocation => 'Temp Location';
+
+	/// en: 'Temporary location for files during download. Files are moved to the download location when complete.'
+	String get tempLocationDescription => 'Temporary location for files during download. Files are moved to the download location when complete.';
+
+	/// en: 'Same as download location'
+	String get tempLocationDefault => 'Same as download location';
+
+	/// en: 'Custom temp folder'
+	String get tempLocationCustom => 'Custom temp folder';
+
+	/// en: 'Temp location changed'
+	String get tempLocationChanged => 'Temp location changed';
+
+	/// en: 'Temp location reset to download location'
+	String get tempLocationReset => 'Temp location reset to download location';
+
 	/// en: 'Download on WiFi only'
 	String get downloadOnWifiOnly => 'Download on WiFi only';
 
@@ -3224,6 +3242,12 @@ extension on Translations {
 			'settings.downloadLocationReset' => 'Download location reset to default',
 			'settings.downloadLocationInvalid' => 'Selected folder is not writable',
 			'settings.downloadLocationSelectError' => 'Failed to select folder',
+			'settings.tempLocation' => 'Temp Location',
+			'settings.tempLocationDescription' => 'Temporary location for files during download. Files are moved to the download location when complete.',
+			'settings.tempLocationDefault' => 'Same as download location',
+			'settings.tempLocationCustom' => 'Custom temp folder',
+			'settings.tempLocationChanged' => 'Temp location changed',
+			'settings.tempLocationReset' => 'Temp location reset to download location',
 			'settings.downloadOnWifiOnly' => 'Download on WiFi only',
 			'settings.downloadOnWifiOnlyDescription' => 'Prevent downloads when on cellular data',
 			'settings.downloadQuality' => 'Download Quality',
@@ -3506,14 +3530,14 @@ extension on Translations {
 			'libraries.scanLibrary' => 'Scan Library',
 			'libraries.analyze' => 'Analyze',
 			'libraries.analyzeLibrary' => 'Analyze Library',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.refreshMetadata' => 'Refresh Metadata',
 			'libraries.emptyTrash' => 'Empty Trash',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Emptying trash for "${title}"...',
 			'libraries.trashEmptied' => ({required Object title}) => 'Trash emptied for "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Failed to empty trash: ${error}',
 			'libraries.analyzing' => ({required Object title}) => 'Analyzing "${title}"...',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analysisStarted' => ({required Object title}) => 'Analysis started for "${title}"',
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Failed to analyze library: ${error}',
 			'libraries.noLibrariesFound' => 'No libraries found',

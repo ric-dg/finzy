@@ -193,7 +193,8 @@ extension DownloadDatabaseOperations on AppDatabase {
 class _DownloadContext {
   final MediaMetadata metadata;
   final DownloadQueueItem queueItem;
-  final String filePath; // Absolute path (normal) or SAF dir URI (SAF mode)
+  final String filePath; // Absolute path of the temp file (or SAF dir URI)
+  final String? finalFilePath; // Absolute path of the final destination (null when temp == final)
   final String extension;
   final JellyfinClient client;
   final int? showYear;
@@ -205,6 +206,7 @@ class _DownloadContext {
     required this.metadata,
     required this.queueItem,
     required this.filePath,
+    this.finalFilePath,
     required this.extension,
     required this.client,
     this.showYear,
@@ -663,13 +665,25 @@ class DownloadManagerService {
         appLogger.i('Enqueued SAF download task ${task.taskId} for $globalKey');
       } else {
         // Normal mode: use DownloadTask with pause/resume support
-        String downloadFilePath;
+        String finalFilePath;
         if (metadata.type == 'movie') {
-          downloadFilePath = await _storageService.getMovieVideoPath(metadata, ext);
+          finalFilePath = await _storageService.getMovieVideoPath(metadata, ext);
         } else if (metadata.type == 'episode') {
-          downloadFilePath = await _storageService.getEpisodeVideoPath(metadata, ext, showYear: showYear);
+          finalFilePath = await _storageService.getEpisodeVideoPath(metadata, ext, showYear: showYear);
         } else {
-          downloadFilePath = await _storageService.getVideoFilePath(serverId, metadata.itemId, ext);
+          finalFilePath = await _storageService.getVideoFilePath(serverId, metadata.itemId, ext);
+        }
+
+        // Resolve temp path — may differ from final if user configured one
+        final String downloadFilePath;
+        final String? resolvedFinalPath;
+        if (_storageService.isUsingCustomTempPath()) {
+          final fileName = path.basename(finalFilePath);
+          downloadFilePath = await _storageService.getTempFilePath(fileName);
+          resolvedFinalPath = finalFilePath;
+        } else {
+          downloadFilePath = finalFilePath;
+          resolvedFinalPath = null;
         }
 
         await File(downloadFilePath).parent.create(recursive: true);
@@ -687,6 +701,7 @@ class DownloadManagerService {
               globalKey: globalKey,
               url: playbackData.videoUrl!,
               filePath: downloadFilePath,
+              finalFilePath: resolvedFinalPath,
               headers: client.requestHeaders,
               metadata: metadata,
               queueItem: queueItem,
@@ -702,6 +717,7 @@ class DownloadManagerService {
               globalKey: globalKey,
               url: playbackData.videoUrl!,
               filePath: downloadFilePath,
+              finalFilePath: resolvedFinalPath,
               headers: client.requestHeaders,
               metadata: metadata,
               queueItem: queueItem,
@@ -735,6 +751,7 @@ class DownloadManagerService {
           metadata: metadata,
           queueItem: queueItem,
           filePath: downloadFilePath,
+          finalFilePath: resolvedFinalPath,
           extension: ext,
           client: client,
           showYear: showYear,
@@ -908,6 +925,7 @@ class DownloadManagerService {
     required String globalKey,
     required String url,
     required String filePath,
+    String? finalFilePath,
     required Map<String, String> headers,
     required MediaMetadata metadata,
     required DownloadQueueItem queueItem,
@@ -925,6 +943,7 @@ class DownloadManagerService {
       metadata: metadata,
       queueItem: queueItem,
       filePath: filePath,
+      finalFilePath: finalFilePath,
       extension: extension,
       client: client,
       showYear: showYear,
@@ -1032,6 +1051,7 @@ class DownloadManagerService {
     required String globalKey,
     required String url,
     required String filePath,
+    String? finalFilePath,
     required Map<String, String> headers,
     required MediaMetadata metadata,
     required DownloadQueueItem queueItem,
@@ -1049,6 +1069,7 @@ class DownloadManagerService {
       metadata: metadata,
       queueItem: queueItem,
       filePath: filePath,
+      finalFilePath: finalFilePath,
       extension: extension,
       client: client,
       showYear: showYear,
@@ -1344,7 +1365,14 @@ class DownloadManagerService {
             if (storedPath.isEmpty) throw Exception('Cannot determine SAF file URI');
           }
         } else {
-          storedPath = await _storageService.toRelativePath(ctx.filePath);
+          // Move temp file to final location if temp differs from final
+          if (ctx.finalFilePath != null) {
+            appLogger.d('Moving download from temp to final: ${ctx.filePath} -> ${ctx.finalFilePath}');
+            await _storageService.moveToFinalLocation(ctx.filePath, ctx.finalFilePath!);
+            storedPath = await _storageService.toRelativePath(ctx.finalFilePath!);
+          } else {
+            storedPath = await _storageService.toRelativePath(ctx.filePath);
+          }
         }
       } else {
         // Recovery path: context missing (app was restarted)

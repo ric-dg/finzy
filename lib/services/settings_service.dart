@@ -111,6 +111,8 @@ class SettingsService extends BaseSharedPreferencesService {
   static const String _keyEnableChapterImages = 'enable_chapter_images';
   static const String _keyCustomDownloadPath = 'custom_download_path';
   static const String _keyCustomDownloadPathType = 'custom_download_path_type';
+  static const String _keyCustomTempDownloadPath = 'custom_temp_download_path';
+  static const String _keyCustomTempDownloadPathType = 'custom_temp_download_path_type';
   static const String _keyShowDownloads = 'show_downloads';
   static const String _keyDownloadOnWifiOnly = 'download_on_wifi_only';
   static const String _keyDownloadQuality = 'download_quality';
@@ -1142,6 +1144,29 @@ class SettingsService extends BaseSharedPreferencesService {
 
   bool hasCustomDownloadPath() {
     return prefs.containsKey(_keyCustomDownloadPath);
+  }
+
+  // Custom Temp Download Path
+  Future<void> setCustomTempDownloadPath(String? path, {String type = 'file'}) async {
+    if (path == null) {
+      await prefs.remove(_keyCustomTempDownloadPath);
+      await prefs.remove(_keyCustomTempDownloadPathType);
+    } else {
+      await prefs.setString(_keyCustomTempDownloadPath, path);
+      await prefs.setString(_keyCustomTempDownloadPathType, type);
+    }
+  }
+
+  String? getCustomTempDownloadPath() {
+    return prefs.getString(_keyCustomTempDownloadPath);
+  }
+
+  String getCustomTempDownloadPathType() {
+    return prefs.getString(_keyCustomTempDownloadPathType) ?? 'file';
+  }
+
+  bool hasCustomTempDownloadPath() {
+    return prefs.containsKey(_keyCustomTempDownloadPath);
   }
 
   // Show Downloads

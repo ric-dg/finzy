@@ -120,6 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
   static const _kAutoSkipDelay = 'auto_skip_delay';
   static const _kShowDownloads = 'show_downloads';
   static const _kDownloadLocation = 'download_location';
+  static const _kTempLocation = 'temp_location';
   static const _kDownloadOnWifiOnly = 'download_on_wifi_only';
   static const _kDownloadQuality = 'download_quality';
   static const _kVideoPlayerControls = 'video_player_controls';
@@ -829,6 +830,22 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
             );
           },
         ),
+      if (downloadsEnabled && !Platform.isIOS)
+        FutureBuilder<String>(
+          future: storageService.getCurrentTempPathDisplay(),
+          builder: (context, snapshot) {
+            final currentPath = snapshot.data ?? '...';
+            final isUsingCustom = storageService.isUsingCustomTempPath();
+            return ListTile(
+              focusNode: _focusTracker.get(_kTempLocation),
+              leading: const AppIcon(Symbols.hourglass_top_rounded, fill: 1),
+              title: Text(isUsingCustom ? t.settings.tempLocationCustom : t.settings.tempLocationDefault),
+              subtitle: Text(currentPath, maxLines: 2, overflow: TextOverflow.ellipsis),
+              trailing: const AppIcon(Symbols.chevron_right_rounded, fill: 1),
+              onTap: () => _showTempLocationDialog(),
+            );
+          },
+        ),
       if (downloadsEnabled)
         SwitchListTile(
           focusNode: _focusTracker.get(_kDownloadOnWifiOnly),
@@ -1505,6 +1522,87 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
       // ignore: no-empty-block - setState triggers rebuild to reflect reset path
       setState(() {});
       showAppSnackBar(context, t.settings.downloadLocationReset);
+    }
+  }
+
+  Future<void> _showTempLocationDialog() async {
+    final storageService = DownloadStorageService.instance;
+    final isCustom = storageService.isUsingCustomTempPath();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(t.settings.tempLocation),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.settings.tempLocationDescription),
+            const SizedBox(height: 16),
+            FutureBuilder<String>(
+              future: storageService.getCurrentTempPathDisplay(),
+              builder: (context, snapshot) {
+                return Text(
+                  t.settings.currentPath(path: snapshot.data ?? '...'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                );
+              },
+            ),
+          ],
+        ),
+        actions: [
+          if (isCustom)
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(dialogContext);
+                await _resetTempLocation();
+              },
+              child: Text(t.settings.resetToDefault),
+            ),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(t.common.cancel)),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await _selectTempLocation();
+            },
+            child: Text(t.settings.selectFolder),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _selectTempLocation() async {
+    try {
+      final result = await FilePicker.getDirectoryPath(dialogTitle: t.settings.tempLocation);
+      if (result != null) {
+        final dir = Directory(result);
+        final isWritable = await DownloadStorageService.instance.isDirectoryWritable(dir);
+        if (!isWritable) {
+          if (mounted) showErrorSnackBar(context, t.settings.downloadLocationInvalid);
+          return;
+        }
+
+        await _settingsService.setCustomTempDownloadPath(result);
+        await DownloadStorageService.instance.refreshCustomPath();
+
+        if (mounted) {
+          setState(() {});
+          showSuccessSnackBar(context, t.settings.tempLocationChanged);
+        }
+      }
+    } catch (e) {
+      if (mounted) showErrorSnackBar(context, t.settings.downloadLocationSelectError);
+    }
+  }
+
+  Future<void> _resetTempLocation() async {
+    await _settingsService.setCustomTempDownloadPath(null);
+    await DownloadStorageService.instance.refreshCustomPath();
+
+    if (mounted) {
+      setState(() {});
+      showAppSnackBar(context, t.settings.tempLocationReset);
     }
   }
 
