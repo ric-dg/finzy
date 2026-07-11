@@ -821,6 +821,24 @@ class Translations$settings$en {
 	/// en: 'Temp location reset to download location'
 	String get tempLocationReset => 'Temp location reset to download location';
 
+	/// en: '${count} downloads moved to new location'
+	String downloadsMigrated({required Object count}) => '${count} downloads moved to new location';
+
+	/// en: 'Verify Downloads'
+	String get verifyDownloads => 'Verify Downloads';
+
+	/// en: 'Check that all downloaded files are accessible'
+	String get verifyDownloadsDescription => 'Check that all downloaded files are accessible';
+
+	/// en: '${count} downloads repaired'
+	String downloadsRepaired({required Object count}) => '${count} downloads repaired';
+
+	/// en: '${count} downloads not found on disk'
+	String downloadsMissing({required Object count}) => '${count} downloads not found on disk';
+
+	/// en: 'All downloads verified successfully'
+	String get downloadsAllValid => 'All downloads verified successfully';
+
 	/// en: 'Download on WiFi only'
 	String get downloadOnWifiOnly => 'Download on WiFi only';
 
@@ -3248,6 +3266,12 @@ extension on Translations {
 			'settings.tempLocationCustom' => 'Custom temp folder',
 			'settings.tempLocationChanged' => 'Temp location changed',
 			'settings.tempLocationReset' => 'Temp location reset to download location',
+			'settings.downloadsMigrated' => ({required Object count}) => '${count} downloads moved to new location',
+			'settings.verifyDownloads' => 'Verify Downloads',
+			'settings.verifyDownloadsDescription' => 'Check that all downloaded files are accessible',
+			'settings.downloadsRepaired' => ({required Object count}) => '${count} downloads repaired',
+			'settings.downloadsMissing' => ({required Object count}) => '${count} downloads not found on disk',
+			'settings.downloadsAllValid' => 'All downloads verified successfully',
 			'settings.downloadOnWifiOnly' => 'Download on WiFi only',
 			'settings.downloadOnWifiOnlyDescription' => 'Prevent downloads when on cellular data',
 			'settings.downloadQuality' => 'Download Quality',
@@ -3524,14 +3548,14 @@ extension on Translations {
 			'errors.pleaseEnterToken' => 'Please enter a token',
 			'errors.invalidToken' => 'Invalid token',
 			'errors.failedToVerifyToken' => ({required Object error}) => 'Failed to verify token: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'errors.failedToSwitchProfile' => ({required Object displayName}) => 'Failed to switch to ${displayName}',
 			'libraries.title' => 'Libraries',
 			'libraries.scanLibraryFiles' => 'Scan Library Files',
 			'libraries.scanLibrary' => 'Scan Library',
 			'libraries.analyze' => 'Analyze',
 			'libraries.analyzeLibrary' => 'Analyze Library',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.refreshMetadata' => 'Refresh Metadata',
 			'libraries.emptyTrash' => 'Empty Trash',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Emptying trash for "${title}"...',

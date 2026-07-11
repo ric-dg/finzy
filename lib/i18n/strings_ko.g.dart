@@ -356,6 +356,12 @@ class _Translations$settings$ko implements Translations$settings$en {
 	@override String get tempLocationCustom => 'Custom temp folder';
 	@override String get tempLocationChanged => 'Temp location changed';
 	@override String get tempLocationReset => 'Temp location reset to download location';
+	@override String downloadsMigrated({required Object count}) => '${count} downloads moved to new location';
+	@override String get verifyDownloads => 'Verify Downloads';
+	@override String get verifyDownloadsDescription => 'Check that all downloaded files are accessible';
+	@override String downloadsRepaired({required Object count}) => '${count} downloads repaired';
+	@override String downloadsMissing({required Object count}) => '${count} downloads not found on disk';
+	@override String get downloadsAllValid => 'All downloads verified successfully';
 	@override String get downloadLocationSelectError => '폴더 선택 실패';
 	@override String get downloadOnWifiOnly => 'WiFi 연결 시에만 다운로드';
 	@override String get downloadOnWifiOnlyDescription => '셀룰러 데이터 사용 시 다운로드 불가';
@@ -1558,6 +1564,12 @@ extension on TranslationsKo {
 			'settings.tempLocationCustom' => 'Custom temp folder',
 			'settings.tempLocationChanged' => 'Temp location changed',
 			'settings.tempLocationReset' => 'Temp location reset to download location',
+			'settings.downloadsMigrated' => ({required Object count}) => '${count} downloads moved to new location',
+			'settings.verifyDownloads' => 'Verify Downloads',
+			'settings.verifyDownloadsDescription' => 'Check that all downloaded files are accessible',
+			'settings.downloadsRepaired' => ({required Object count}) => '${count} downloads repaired',
+			'settings.downloadsMissing' => ({required Object count}) => '${count} downloads not found on disk',
+			'settings.downloadsAllValid' => 'All downloads verified successfully',
 			'settings.downloadLocationSelectError' => '폴더 선택 실패',
 			'settings.downloadOnWifiOnly' => 'WiFi 연결 시에만 다운로드',
 			'settings.downloadOnWifiOnlyDescription' => '셀룰러 데이터 사용 시 다운로드 불가',
@@ -1835,14 +1847,14 @@ extension on TranslationsKo {
 			'errors.couldNotLaunchUrl' => '인증 URL을 열 수 없습니다',
 			'errors.pleaseEnterToken' => '토큰을 입력해 주세요',
 			'errors.invalidToken' => '토큰이 유효하지 않습니다',
+			_ => null,
+		} ?? switch (path) {
 			'errors.failedToVerifyToken' => ({required Object error}) => '토큰을 확인할 수 없습니다: ${error}',
 			'errors.failedToSwitchProfile' => ({required Object displayName}) => '${displayName}으로 전환할 수 없습니다',
 			'libraries.title' => '미디어 라이브러리',
 			'libraries.scanLibraryFiles' => '미디어 라이브러리 파일 스캔',
 			'libraries.scanLibrary' => '미디어 라이브러리 스캔',
 			'libraries.analyze' => '분석',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzeLibrary' => '미디어 라이브러리 분석',
 			'libraries.refreshMetadata' => '메타데이터 새로 고침',
 			'libraries.emptyTrash' => '휴지통 비우기',

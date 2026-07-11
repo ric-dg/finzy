@@ -356,6 +356,12 @@ class _Translations$settings$zh implements Translations$settings$en {
 	@override String get tempLocationCustom => 'Custom temp folder';
 	@override String get tempLocationChanged => 'Temp location changed';
 	@override String get tempLocationReset => 'Temp location reset to download location';
+	@override String downloadsMigrated({required Object count}) => '${count} downloads moved to new location';
+	@override String get verifyDownloads => 'Verify Downloads';
+	@override String get verifyDownloadsDescription => 'Check that all downloaded files are accessible';
+	@override String downloadsRepaired({required Object count}) => '${count} downloads repaired';
+	@override String downloadsMissing({required Object count}) => '${count} downloads not found on disk';
+	@override String get downloadsAllValid => 'All downloads verified successfully';
 	@override String get downloadLocationSelectError => '选择文件夹失败';
 	@override String get downloadOnWifiOnly => '仅在 WiFi 时下载';
 	@override String get downloadOnWifiOnlyDescription => '使用蜂窝数据时禁止下载';
@@ -1558,6 +1564,12 @@ extension on TranslationsZh {
 			'settings.tempLocationCustom' => 'Custom temp folder',
 			'settings.tempLocationChanged' => 'Temp location changed',
 			'settings.tempLocationReset' => 'Temp location reset to download location',
+			'settings.downloadsMigrated' => ({required Object count}) => '${count} downloads moved to new location',
+			'settings.verifyDownloads' => 'Verify Downloads',
+			'settings.verifyDownloadsDescription' => 'Check that all downloaded files are accessible',
+			'settings.downloadsRepaired' => ({required Object count}) => '${count} downloads repaired',
+			'settings.downloadsMissing' => ({required Object count}) => '${count} downloads not found on disk',
+			'settings.downloadsAllValid' => 'All downloads verified successfully',
 			'settings.downloadLocationSelectError' => '选择文件夹失败',
 			'settings.downloadOnWifiOnly' => '仅在 WiFi 时下载',
 			'settings.downloadOnWifiOnlyDescription' => '使用蜂窝数据时禁止下载',
@@ -1835,14 +1847,14 @@ extension on TranslationsZh {
 			'errors.couldNotLaunchUrl' => '无法打开授权 URL',
 			'errors.pleaseEnterToken' => '请输入一个令牌',
 			'errors.invalidToken' => '令牌无效',
+			_ => null,
+		} ?? switch (path) {
 			'errors.failedToVerifyToken' => ({required Object error}) => '无法验证令牌: ${error}',
 			'errors.failedToSwitchProfile' => ({required Object displayName}) => '无法切换到 ${displayName}',
 			'libraries.title' => '媒体库',
 			'libraries.scanLibraryFiles' => '扫描媒体库文件',
 			'libraries.scanLibrary' => '扫描媒体库',
 			'libraries.analyze' => '分析',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzeLibrary' => '分析媒体库',
 			'libraries.refreshMetadata' => '刷新元数据',
 			'libraries.emptyTrash' => '清空回收站',

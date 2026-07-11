@@ -356,6 +356,12 @@ class _Translations$settings$it implements Translations$settings$en {
 	@override String get tempLocationCustom => 'Custom temp folder';
 	@override String get tempLocationChanged => 'Temp location changed';
 	@override String get tempLocationReset => 'Temp location reset to download location';
+	@override String downloadsMigrated({required Object count}) => '${count} downloads moved to new location';
+	@override String get verifyDownloads => 'Verify Downloads';
+	@override String get verifyDownloadsDescription => 'Check that all downloaded files are accessible';
+	@override String downloadsRepaired({required Object count}) => '${count} downloads repaired';
+	@override String downloadsMissing({required Object count}) => '${count} downloads not found on disk';
+	@override String get downloadsAllValid => 'All downloads verified successfully';
 	@override String get downloadLocationSelectError => 'Impossibile selezionare la cartella';
 	@override String get downloadOnWifiOnly => 'Scarica solo con WiFi';
 	@override String get downloadOnWifiOnlyDescription => 'Impedisci i download quando si utilizza la rete dati cellulare';
@@ -1558,6 +1564,12 @@ extension on TranslationsIt {
 			'settings.tempLocationCustom' => 'Custom temp folder',
 			'settings.tempLocationChanged' => 'Temp location changed',
 			'settings.tempLocationReset' => 'Temp location reset to download location',
+			'settings.downloadsMigrated' => ({required Object count}) => '${count} downloads moved to new location',
+			'settings.verifyDownloads' => 'Verify Downloads',
+			'settings.verifyDownloadsDescription' => 'Check that all downloaded files are accessible',
+			'settings.downloadsRepaired' => ({required Object count}) => '${count} downloads repaired',
+			'settings.downloadsMissing' => ({required Object count}) => '${count} downloads not found on disk',
+			'settings.downloadsAllValid' => 'All downloads verified successfully',
 			'settings.downloadLocationSelectError' => 'Impossibile selezionare la cartella',
 			'settings.downloadOnWifiOnly' => 'Scarica solo con WiFi',
 			'settings.downloadOnWifiOnlyDescription' => 'Impedisci i download quando si utilizza la rete dati cellulare',
@@ -1835,14 +1847,14 @@ extension on TranslationsIt {
 			'errors.couldNotLaunchUrl' => 'Impossibile avviare URL di autenticazione',
 			'errors.pleaseEnterToken' => 'Inserisci token',
 			'errors.invalidToken' => 'Token non valido',
+			_ => null,
+		} ?? switch (path) {
 			'errors.failedToVerifyToken' => ({required Object error}) => 'Verifica token fallita: ${error}',
 			'errors.failedToSwitchProfile' => ({required Object displayName}) => 'Impossibile passare a ${displayName}',
 			'libraries.title' => 'Librerie',
 			'libraries.scanLibraryFiles' => 'Scansiona file libreria',
 			'libraries.scanLibrary' => 'Scansiona libreria',
 			'libraries.analyze' => 'Analizza',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzeLibrary' => 'Analizza libreria',
 			'libraries.refreshMetadata' => 'Aggiorna metadati',
 			'libraries.emptyTrash' => 'Svuota cestino',

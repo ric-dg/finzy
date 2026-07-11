@@ -36,6 +36,7 @@ import '../../services/download_storage_service.dart';
 import '../../services/saf_storage_service.dart';
 import '../../services/keyboard_shortcuts_service.dart';
 import '../../services/settings_service.dart' as settings;
+import '../../database/app_database.dart';
 import '../../utils/dialogs.dart';
 import '../../utils/snackbar_helper.dart';
 import '../../utils/platform_detector.dart';
@@ -867,6 +868,13 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
           trailing: const AppIcon(Symbols.chevron_right_rounded, fill: 1),
           onTap: () => _showDownloadQualityDialog(),
         ),
+      if (downloadsEnabled && !Platform.isIOS)
+        ListTile(
+          leading: const AppIcon(Symbols.check_circle_rounded, fill: 1),
+          title: Text(t.settings.verifyDownloads),
+          subtitle: Text(t.settings.verifyDownloadsDescription),
+          onTap: () => _verifyDownloads(),
+        ),
     ];
   }
 
@@ -1501,10 +1509,16 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
         await _settingsService.setCustomDownloadPath(selectedPath, type: pathType);
         await DownloadStorageService.instance.refreshCustomPath();
 
+        // Migrate existing downloads to new location
         if (mounted) {
-          // ignore: no-empty-block - setState triggers rebuild to reflect new download path
+          final db = AppDatabase();
+          final result = await DownloadStorageService.instance.migrateDownloadPaths(db);
           setState(() {});
-          showSuccessSnackBar(context, t.settings.downloadLocationChanged);
+          if (result.moved > 0) {
+            showSuccessSnackBar(context, t.settings.downloadsMigrated(count: result.moved));
+          } else {
+            showSuccessSnackBar(context, t.settings.downloadLocationChanged);
+          }
         }
       }
     } catch (e) {
@@ -1518,10 +1532,28 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
     await _settingsService.setCustomDownloadPath(null);
     await DownloadStorageService.instance.refreshCustomPath();
 
+    // Migrate back to default location
     if (mounted) {
-      // ignore: no-empty-block - setState triggers rebuild to reflect reset path
+      final db = AppDatabase();
+      await DownloadStorageService.instance.migrateDownloadPaths(db);
       setState(() {});
       showAppSnackBar(context, t.settings.downloadLocationReset);
+    }
+  }
+
+  Future<void> _verifyDownloads() async {
+    if (!mounted) return;
+    final db = AppDatabase();
+    final result = await DownloadStorageService.instance.verifyDownloadPaths(db);
+    if (!mounted) return;
+    if (result.repaired > 0) {
+      showSuccessSnackBar(context, t.settings.downloadsRepaired(count: result.repaired));
+    }
+    if (result.missing > 0) {
+      showAppSnackBar(context, t.settings.downloadsMissing(count: result.missing));
+    }
+    if (result.repaired == 0 && result.missing == 0) {
+      showSuccessSnackBar(context, t.settings.downloadsAllValid);
     }
   }
 
