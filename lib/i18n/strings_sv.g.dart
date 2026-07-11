@@ -356,6 +356,12 @@ class _Translations$settings$sv implements Translations$settings$en {
 	@override String get tempLocationCustom => 'Custom temp folder';
 	@override String get tempLocationChanged => 'Temp location changed';
 	@override String get tempLocationReset => 'Temp location reset to download location';
+	@override String downloadsMigrated({required Object count}) => '${count} downloads moved to new location';
+	@override String get verifyDownloads => 'Verify Downloads';
+	@override String get verifyDownloadsDescription => 'Check that all downloaded files are accessible';
+	@override String downloadsRepaired({required Object count}) => '${count} downloads repaired';
+	@override String downloadsMissing({required Object count}) => '${count} downloads not found on disk';
+	@override String get downloadsAllValid => 'All downloads verified successfully';
 	@override String get downloadLocationSelectError => 'Kunde inte välja mapp';
 	@override String get downloadOnWifiOnly => 'Ladda ner endast på WiFi';
 	@override String get downloadOnWifiOnlyDescription => 'Förhindra nedladdningar vid användning av mobildata';
@@ -1558,6 +1564,12 @@ extension on TranslationsSv {
 			'settings.tempLocationCustom' => 'Custom temp folder',
 			'settings.tempLocationChanged' => 'Temp location changed',
 			'settings.tempLocationReset' => 'Temp location reset to download location',
+			'settings.downloadsMigrated' => ({required Object count}) => '${count} downloads moved to new location',
+			'settings.verifyDownloads' => 'Verify Downloads',
+			'settings.verifyDownloadsDescription' => 'Check that all downloaded files are accessible',
+			'settings.downloadsRepaired' => ({required Object count}) => '${count} downloads repaired',
+			'settings.downloadsMissing' => ({required Object count}) => '${count} downloads not found on disk',
+			'settings.downloadsAllValid' => 'All downloads verified successfully',
 			'settings.downloadLocationSelectError' => 'Kunde inte välja mapp',
 			'settings.downloadOnWifiOnly' => 'Ladda ner endast på WiFi',
 			'settings.downloadOnWifiOnlyDescription' => 'Förhindra nedladdningar vid användning av mobildata',
@@ -1835,14 +1847,14 @@ extension on TranslationsSv {
 			'errors.couldNotLaunchUrl' => 'Kunde inte öppna autentiserings-URL',
 			'errors.pleaseEnterToken' => 'Vänligen ange en token',
 			'errors.invalidToken' => 'Ogiltig token',
+			_ => null,
+		} ?? switch (path) {
 			'errors.failedToVerifyToken' => ({required Object error}) => 'Misslyckades att verifiera token: ${error}',
 			'errors.failedToSwitchProfile' => ({required Object displayName}) => 'Misslyckades att byta till ${displayName}',
 			'libraries.title' => 'Bibliotek',
 			'libraries.scanLibraryFiles' => 'Skanna biblioteksfiler',
 			'libraries.scanLibrary' => 'Skanna bibliotek',
 			'libraries.analyze' => 'Analysera',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzeLibrary' => 'Analysera bibliotek',
 			'libraries.refreshMetadata' => 'Uppdatera metadata',
 			'libraries.emptyTrash' => 'Töm papperskorg',

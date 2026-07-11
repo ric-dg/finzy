@@ -1,6 +1,6 @@
 # Milestone 003: Relocate Existing Downloads to New Location
 
-## Goal
+**Status:** COMPLETE
 
 Allow users to change their download location and have existing downloads continue to work. Currently, paths in the DB are stored relative to the app base directory (`appBaseDir/downloads/...`). Changing the download location to a custom path breaks all existing entries because they still resolve against the old base.
 

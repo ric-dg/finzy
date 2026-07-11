@@ -356,6 +356,12 @@ class _Translations$settings$nl implements Translations$settings$en {
 	@override String get tempLocationCustom => 'Custom temp folder';
 	@override String get tempLocationChanged => 'Temp location changed';
 	@override String get tempLocationReset => 'Temp location reset to download location';
+	@override String downloadsMigrated({required Object count}) => '${count} downloads moved to new location';
+	@override String get verifyDownloads => 'Verify Downloads';
+	@override String get verifyDownloadsDescription => 'Check that all downloaded files are accessible';
+	@override String downloadsRepaired({required Object count}) => '${count} downloads repaired';
+	@override String downloadsMissing({required Object count}) => '${count} downloads not found on disk';
+	@override String get downloadsAllValid => 'All downloads verified successfully';
 	@override String get downloadLocationSelectError => 'Kan map niet selecteren';
 	@override String get downloadOnWifiOnly => 'Alleen via WiFi downloaden';
 	@override String get downloadOnWifiOnlyDescription => 'Voorkom downloads bij gebruik van mobiele data';
@@ -1558,6 +1564,12 @@ extension on TranslationsNl {
 			'settings.tempLocationCustom' => 'Custom temp folder',
 			'settings.tempLocationChanged' => 'Temp location changed',
 			'settings.tempLocationReset' => 'Temp location reset to download location',
+			'settings.downloadsMigrated' => ({required Object count}) => '${count} downloads moved to new location',
+			'settings.verifyDownloads' => 'Verify Downloads',
+			'settings.verifyDownloadsDescription' => 'Check that all downloaded files are accessible',
+			'settings.downloadsRepaired' => ({required Object count}) => '${count} downloads repaired',
+			'settings.downloadsMissing' => ({required Object count}) => '${count} downloads not found on disk',
+			'settings.downloadsAllValid' => 'All downloads verified successfully',
 			'settings.downloadLocationSelectError' => 'Kan map niet selecteren',
 			'settings.downloadOnWifiOnly' => 'Alleen via WiFi downloaden',
 			'settings.downloadOnWifiOnlyDescription' => 'Voorkom downloads bij gebruik van mobiele data',
@@ -1835,14 +1847,14 @@ extension on TranslationsNl {
 			'errors.couldNotLaunchUrl' => 'Kon auth URL niet openen',
 			'errors.pleaseEnterToken' => 'Voer een token in',
 			'errors.invalidToken' => 'Ongeldig token',
+			_ => null,
+		} ?? switch (path) {
 			'errors.failedToVerifyToken' => ({required Object error}) => 'Kon token niet verifiëren: ${error}',
 			'errors.failedToSwitchProfile' => ({required Object displayName}) => 'Kon niet wisselen naar ${displayName}',
 			'libraries.title' => 'Bibliotheken',
 			'libraries.scanLibraryFiles' => 'Scan bibliotheek bestanden',
 			'libraries.scanLibrary' => 'Scan bibliotheek',
 			'libraries.analyze' => 'Analyseren',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzeLibrary' => 'Analyseer bibliotheek',
 			'libraries.refreshMetadata' => 'Vernieuw metadata',
 			'libraries.emptyTrash' => 'Prullenbak legen',

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
+import 'package:drift/drift.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
+import '../database/app_database.dart';
 import '../models/media_metadata.dart';
 import '../utils/formatters.dart';
 import 'settings_service.dart';
@@ -428,17 +430,14 @@ class DownloadStorageService {
     }
   }
 
-  /// Convert an absolute file path to a relative path (for database storage)
-  /// This ensures paths remain valid across app reinstalls on iOS where
-  /// the container UUID can change.
-  /// Returns a path relative to the app's documents directory.
+  /// Convert an absolute file path to a relative path (for database storage).
+  /// Strips the current download directory prefix so paths stay valid
+  /// when the download location changes.
   Future<String> toRelativePath(String absolutePath) async {
-    final baseDir = await _getBaseAppDir();
+    final downloadDir = await getDownloadsDirectory();
 
-    // If the path starts with the base directory, strip it
-    if (absolutePath.startsWith(baseDir.path)) {
-      // Remove the base path and any leading separator
-      var relative = absolutePath.substring(baseDir.path.length);
+    if (absolutePath.startsWith(downloadDir.path)) {
+      var relative = absolutePath.substring(downloadDir.path.length);
       if (relative.startsWith('/') || relative.startsWith('\\')) {
         relative = relative.substring(1);
       }
@@ -449,38 +448,187 @@ class DownloadStorageService {
     return absolutePath;
   }
 
-  /// Convert a relative file path to an absolute path (for file operations)
-  /// Reconstructs the full path using the current app documents directory.
+  /// Convert a relative file path to an absolute path (for file operations).
+  /// Reconstructs the full path using the current download directory.
   Future<String> toAbsolutePath(String relativePath) async {
-    // If it's already an absolute path, return as-is
     if (path.isAbsolute(relativePath)) {
       return relativePath;
     }
 
-    final baseDir = await _getBaseAppDir();
-    return path.join(baseDir.path, relativePath);
+    final downloadDir = await getDownloadsDirectory();
+    return path.join(downloadDir.path, relativePath);
   }
 
-  /// Convert a potentially absolute path (from old database entries) to absolute
-  /// This handles both old absolute paths and new relative paths
+  /// Convert a stored path to absolute, handling backward compatibility
+  /// for old-format paths stored relative to the app base directory.
   Future<String> ensureAbsolutePath(String storedPath) async {
     if (path.isAbsolute(storedPath)) {
       // Already absolute - check if file exists at this path
       if (await File(storedPath).exists()) {
         return storedPath;
       }
-      // File doesn't exist at absolute path - try to reconstruct
-      // Extract the relative portion (everything after 'downloads/')
+      // File doesn't exist - try to reconstruct from 'downloads/' onward
       final downloadsIndex = storedPath.indexOf('downloads/');
       if (downloadsIndex != -1) {
         final relativePart = storedPath.substring(downloadsIndex);
-        return await toAbsolutePath(relativePart);
+        // Try new resolution (relative to download dir)
+        final newPath = await toAbsolutePath(relativePart);
+        if (await File(newPath).exists()) return newPath;
+        // Fallback: old resolution (relative to app base dir)
+        final baseDir = await _getBaseAppDir();
+        final oldPath = path.join(baseDir.path, relativePart);
+        if (await File(oldPath).exists()) return oldPath;
       }
-      // Can't reconstruct, return original
       return storedPath;
     }
-    // Relative path - convert to absolute
-    return await toAbsolutePath(storedPath);
+
+    // Relative path - try new resolution first
+    final newPath = await toAbsolutePath(storedPath);
+    if (await File(newPath).exists()) return newPath;
+
+    // Old-format relative path (starts with 'downloads/') - try old resolution
+    if (storedPath.startsWith('downloads/') || storedPath.startsWith('downloads\\')) {
+      final baseDir = await _getBaseAppDir();
+      final oldPath = path.join(baseDir.path, storedPath);
+      if (await File(oldPath).exists()) return oldPath;
+    }
+
+    return newPath;
+  }
+
+  /// Resolve a stored path using the old logic (app base dir + relative).
+  /// Used by migration to find files at their original location.
+  Future<String> _resolveOldPath(String storedPath) async {
+    if (path.isAbsolute(storedPath)) return storedPath;
+    final baseDir = await _getBaseAppDir();
+    return path.join(baseDir.path, storedPath);
+  }
+
+  /// Migrate all download paths from old base to current download directory.
+  /// Moves files from old location to new location and updates DB paths.
+  Future<MigrationResult> migrateDownloadPaths(AppDatabase database) async {
+    final results = MigrationResult();
+    final items = await database.getAllDownloadedMetadata();
+
+    for (final item in items) {
+      if (item.videoFilePath == null) {
+        results.unchanged++;
+        continue;
+      }
+      final storedPath = item.videoFilePath!;
+
+      // Skip SAF URIs
+      if (isSafUri(storedPath)) {
+        results.unchanged++;
+        continue;
+      }
+
+      try {
+        // Resolve old absolute path
+        final oldAbsPath = await _resolveOldPath(storedPath);
+        // Compute new relative path (relative to current download dir)
+        final newRelPath = await toRelativePath(oldAbsPath);
+        final newAbsPath = await toAbsolutePath(newRelPath);
+
+        // Already correct?
+        if (newRelPath == storedPath) {
+          results.unchanged++;
+          continue;
+        }
+
+        // File exists at new location already (user moved manually)?
+        if (await File(newAbsPath).exists()) {
+          await _updateDbPath(database, item.globalKey, newRelPath);
+          results.moved++;
+          continue;
+        }
+
+        // File exists at old location? Move it.
+        if (oldAbsPath != newAbsPath && await File(oldAbsPath).exists()) {
+          await File(newAbsPath).parent.create(recursive: true);
+          try {
+            await File(oldAbsPath).rename(newAbsPath);
+          } on FileSystemException {
+            // Cross-filesystem: copy + delete
+            await File(oldAbsPath).copy(newAbsPath);
+            await File(oldAbsPath).delete();
+          }
+          await _updateDbPath(database, item.globalKey, newRelPath);
+          results.moved++;
+          continue;
+        }
+
+        // File not found anywhere
+        results.missing++;
+      } catch (e) {
+        results.errors++;
+      }
+    }
+
+    return results;
+  }
+
+  /// Verify all download paths resolve to existing files.
+  /// Attempts to find missing files in the download directory by filename.
+  Future<VerificationResult> verifyDownloadPaths(AppDatabase database) async {
+    final results = VerificationResult();
+    final downloadDir = await getDownloadsDirectory();
+    final items = await database.getAllDownloadedMetadata();
+
+    for (final item in items) {
+      if (item.videoFilePath == null) {
+        results.valid++;
+        continue;
+      }
+      final storedPath = item.videoFilePath!;
+      if (isSafUri(storedPath)) {
+        results.valid++;
+        continue;
+      }
+
+      final absPath = await getReadablePath(storedPath);
+      if (await File(absPath).exists()) {
+        results.valid++;
+        continue;
+      }
+
+      // File missing - try to find by filename in download dir
+      final fileName = path.basename(absPath);
+      final found = await _findFileInDirectory(downloadDir, fileName);
+      if (found != null) {
+        final newRelPath = await toRelativePath(found);
+        await _updateDbPath(database, item.globalKey, newRelPath);
+        results.repaired++;
+      } else {
+        results.missing++;
+      }
+    }
+
+    return results;
+  }
+
+  /// Recursively search a directory for a file with the given name.
+  Future<String?> _findFileInDirectory(Directory dir, String fileName) async {
+    if (!await dir.exists()) return null;
+    try {
+      await for (final entity in dir.list(recursive: true, followLinks: false)) {
+        if (entity is File && path.basename(entity.path) == fileName) {
+          return entity.path;
+        }
+      }
+    } catch (_) {
+      // Ignore permission errors etc.
+    }
+    return null;
+  }
+
+  /// Update a download entry's video file path in the database.
+  Future<void> _updateDbPath(AppDatabase database, String globalKey, String newRelPath) async {
+    await (database.update(database.downloadedMedia)..where((t) => t.globalKey.equals(globalKey))).write(
+      DownloadedMediaCompanion(
+        videoFilePath: Value(newRelPath),
+      ),
+    );
   }
 
   /// Calculate total storage used by downloads
@@ -627,4 +775,21 @@ class DownloadStorageService {
     }
     return await ensureAbsolutePath(storedPath);
   }
+}
+
+/// Result of migrating download paths to a new location.
+class MigrationResult {
+  int moved = 0;
+  int unchanged = 0;
+  int missing = 0;
+  int errors = 0;
+  int get total => moved + unchanged + missing + errors;
+}
+
+/// Result of verifying download paths.
+class VerificationResult {
+  int valid = 0;
+  int repaired = 0;
+  int missing = 0;
+  int get total => valid + repaired + missing;
 }

@@ -192,7 +192,7 @@ class SideNavigationRail extends StatefulWidget {
 }
 
 class SideNavigationRailState extends State<SideNavigationRail> {
-  bool _librariesExpanded = true;
+  bool _librariesExpanded = false;
 
   // Collapsed/expanded state
   bool _isHovered = false;
@@ -374,14 +374,16 @@ class SideNavigationRailState extends State<SideNavigationRail> {
     return [
       if (!widget.isOfflineMode) ...[
         _kHome,
-        _kLibraries,
-        if (_librariesExpanded) ...libraryKeys,
         if (hasLiveTv) 'liveTv',
         _kSearch,
       ],
       if (showDownloads) _kDownloads,
       if (showReconnect) _kReconnect,
       if (showGoOffline) _kGoOffline,
+      if (!widget.isOfflineMode) ...[
+        _kLibraries,
+        if (_librariesExpanded) ...libraryKeys,
+      ],
       _kSettings,
     ];
   }
@@ -546,11 +548,6 @@ class SideNavigationRailState extends State<SideNavigationRail> {
 
                               const SizedBox(height: 8),
 
-                              // Libraries section (ordered list + Favorites at saved/default position)
-                              _buildLibrariesSection(orderedLibraries, favoritesInsertIndex, t, isCollapsed: isCollapsed),
-
-                              const SizedBox(height: 8),
-
                               // Live TV (only if DVR available)
                               if (context.watch<MultiServerProvider>().hasLiveTv) ...[
                                 _buildNavItem(
@@ -652,6 +649,10 @@ class SideNavigationRailState extends State<SideNavigationRail> {
                             if ((widget.isOfflineMode && widget.onReconnect != null) ||
                                 (!widget.isOfflineMode && widget.onGoOffline != null && !PlatformDetector.isTV()))
                               const SizedBox(height: 8),
+
+                            // Libraries section (expandable, collapsed by default)
+                            if (!widget.isOfflineMode)
+                              _buildLibrariesSection(orderedLibraries, favoritesInsertIndex, t, isCollapsed: isCollapsed),
 
                             // Settings
                             Builder(
