@@ -350,6 +350,12 @@ class _Translations$settings$ko implements Translations$settings$en {
 	@override String get downloadLocationChanged => '다운로드 위치가 변경 되었습니다';
 	@override String get downloadLocationReset => '다운로드 위치가 기본값으로 재설정 되었습니다';
 	@override String get downloadLocationInvalid => '선택한 폴더에 쓰기 권한이 없습니다';
+	@override String get tempLocation => 'Temp Location';
+	@override String get tempLocationDescription => 'Temporary location for files during download. Files are moved to the download location when complete.';
+	@override String get tempLocationDefault => 'Same as download location';
+	@override String get tempLocationCustom => 'Custom temp folder';
+	@override String get tempLocationChanged => 'Temp location changed';
+	@override String get tempLocationReset => 'Temp location reset to download location';
 	@override String get downloadLocationSelectError => '폴더 선택 실패';
 	@override String get downloadOnWifiOnly => 'WiFi 연결 시에만 다운로드';
 	@override String get downloadOnWifiOnlyDescription => '셀룰러 데이터 사용 시 다운로드 불가';
@@ -1546,6 +1552,12 @@ extension on TranslationsKo {
 			'settings.downloadLocationChanged' => '다운로드 위치가 변경 되었습니다',
 			'settings.downloadLocationReset' => '다운로드 위치가 기본값으로 재설정 되었습니다',
 			'settings.downloadLocationInvalid' => '선택한 폴더에 쓰기 권한이 없습니다',
+			'settings.tempLocation' => 'Temp Location',
+			'settings.tempLocationDescription' => 'Temporary location for files during download. Files are moved to the download location when complete.',
+			'settings.tempLocationDefault' => 'Same as download location',
+			'settings.tempLocationCustom' => 'Custom temp folder',
+			'settings.tempLocationChanged' => 'Temp location changed',
+			'settings.tempLocationReset' => 'Temp location reset to download location',
 			'settings.downloadLocationSelectError' => '폴더 선택 실패',
 			'settings.downloadOnWifiOnly' => 'WiFi 연결 시에만 다운로드',
 			'settings.downloadOnWifiOnlyDescription' => '셀룰러 데이터 사용 시 다운로드 불가',
@@ -1829,14 +1841,14 @@ extension on TranslationsKo {
 			'libraries.scanLibraryFiles' => '미디어 라이브러리 파일 스캔',
 			'libraries.scanLibrary' => '미디어 라이브러리 스캔',
 			'libraries.analyze' => '분석',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyzeLibrary' => '미디어 라이브러리 분석',
 			'libraries.refreshMetadata' => '메타데이터 새로 고침',
 			'libraries.emptyTrash' => '휴지통 비우기',
 			'libraries.emptyingTrash' => ({required Object title}) => '「${title}」의 휴지통을 비우고 있습니다...',
 			'libraries.trashEmptied' => ({required Object title}) => '「${title}」의 휴지통을 비웠습니다',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => '휴지통 비우기 실패: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzing' => ({required Object title}) => '"${title}" 분석 중...',
 			'libraries.analysisStarted' => ({required Object title}) => '"${title}" 분석 시작됨',
 			'libraries.failedToAnalyze' => ({required Object error}) => '미디어 라이브러리 분석 실패: ${error}',

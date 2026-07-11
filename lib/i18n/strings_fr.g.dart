@@ -350,6 +350,12 @@ class _Translations$settings$fr implements Translations$settings$en {
 	@override String get downloadLocationChanged => 'Emplacement de téléchargement modifié';
 	@override String get downloadLocationReset => 'Emplacement de téléchargement réinitialisé à la valeur par défaut';
 	@override String get downloadLocationInvalid => 'Le dossier sélectionné n\'est pas accessible en écriture';
+	@override String get tempLocation => 'Temp Location';
+	@override String get tempLocationDescription => 'Temporary location for files during download. Files are moved to the download location when complete.';
+	@override String get tempLocationDefault => 'Same as download location';
+	@override String get tempLocationCustom => 'Custom temp folder';
+	@override String get tempLocationChanged => 'Temp location changed';
+	@override String get tempLocationReset => 'Temp location reset to download location';
 	@override String get downloadLocationSelectError => 'Échec de la sélection du dossier';
 	@override String get downloadOnWifiOnly => 'Télécharger uniquement via WiFi';
 	@override String get downloadOnWifiOnlyDescription => 'Empêcher les téléchargements lorsque vous utilisez les données cellulaires';
@@ -1546,6 +1552,12 @@ extension on TranslationsFr {
 			'settings.downloadLocationChanged' => 'Emplacement de téléchargement modifié',
 			'settings.downloadLocationReset' => 'Emplacement de téléchargement réinitialisé à la valeur par défaut',
 			'settings.downloadLocationInvalid' => 'Le dossier sélectionné n\'est pas accessible en écriture',
+			'settings.tempLocation' => 'Temp Location',
+			'settings.tempLocationDescription' => 'Temporary location for files during download. Files are moved to the download location when complete.',
+			'settings.tempLocationDefault' => 'Same as download location',
+			'settings.tempLocationCustom' => 'Custom temp folder',
+			'settings.tempLocationChanged' => 'Temp location changed',
+			'settings.tempLocationReset' => 'Temp location reset to download location',
 			'settings.downloadLocationSelectError' => 'Échec de la sélection du dossier',
 			'settings.downloadOnWifiOnly' => 'Télécharger uniquement via WiFi',
 			'settings.downloadOnWifiOnlyDescription' => 'Empêcher les téléchargements lorsque vous utilisez les données cellulaires',
@@ -1829,14 +1841,14 @@ extension on TranslationsFr {
 			'libraries.scanLibraryFiles' => 'Scanner les fichiers de la bibliothèque',
 			'libraries.scanLibrary' => 'Scanner la bibliothèque',
 			'libraries.analyze' => 'Analyser',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyzeLibrary' => 'Analyser la bibliothèque',
 			'libraries.refreshMetadata' => 'Actualiser les métadonnées',
 			'libraries.emptyTrash' => 'Vider la corbeille',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Vider les poubelles pour "${title}"...',
 			'libraries.trashEmptied' => ({required Object title}) => 'Poubelles vidées pour "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Échec de la suppression des éléments supprimés: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzing' => ({required Object title}) => 'Analyse de "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'L\'analyse a commencé pour "${title}"',
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Échec de l\'analyse de la bibliothèque: ${error}',

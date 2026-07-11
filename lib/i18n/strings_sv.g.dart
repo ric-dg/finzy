@@ -350,6 +350,12 @@ class _Translations$settings$sv implements Translations$settings$en {
 	@override String get downloadLocationChanged => 'Nedladdningsplats ändrad';
 	@override String get downloadLocationReset => 'Nedladdningsplats återställd till standard';
 	@override String get downloadLocationInvalid => 'Vald mapp är inte skrivbar';
+	@override String get tempLocation => 'Temp Location';
+	@override String get tempLocationDescription => 'Temporary location for files during download. Files are moved to the download location when complete.';
+	@override String get tempLocationDefault => 'Same as download location';
+	@override String get tempLocationCustom => 'Custom temp folder';
+	@override String get tempLocationChanged => 'Temp location changed';
+	@override String get tempLocationReset => 'Temp location reset to download location';
 	@override String get downloadLocationSelectError => 'Kunde inte välja mapp';
 	@override String get downloadOnWifiOnly => 'Ladda ner endast på WiFi';
 	@override String get downloadOnWifiOnlyDescription => 'Förhindra nedladdningar vid användning av mobildata';
@@ -1546,6 +1552,12 @@ extension on TranslationsSv {
 			'settings.downloadLocationChanged' => 'Nedladdningsplats ändrad',
 			'settings.downloadLocationReset' => 'Nedladdningsplats återställd till standard',
 			'settings.downloadLocationInvalid' => 'Vald mapp är inte skrivbar',
+			'settings.tempLocation' => 'Temp Location',
+			'settings.tempLocationDescription' => 'Temporary location for files during download. Files are moved to the download location when complete.',
+			'settings.tempLocationDefault' => 'Same as download location',
+			'settings.tempLocationCustom' => 'Custom temp folder',
+			'settings.tempLocationChanged' => 'Temp location changed',
+			'settings.tempLocationReset' => 'Temp location reset to download location',
 			'settings.downloadLocationSelectError' => 'Kunde inte välja mapp',
 			'settings.downloadOnWifiOnly' => 'Ladda ner endast på WiFi',
 			'settings.downloadOnWifiOnlyDescription' => 'Förhindra nedladdningar vid användning av mobildata',
@@ -1829,14 +1841,14 @@ extension on TranslationsSv {
 			'libraries.scanLibraryFiles' => 'Skanna biblioteksfiler',
 			'libraries.scanLibrary' => 'Skanna bibliotek',
 			'libraries.analyze' => 'Analysera',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyzeLibrary' => 'Analysera bibliotek',
 			'libraries.refreshMetadata' => 'Uppdatera metadata',
 			'libraries.emptyTrash' => 'Töm papperskorg',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Tömmer papperskorg för "${title}"...',
 			'libraries.trashEmptied' => ({required Object title}) => 'Papperskorg tömd för "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Misslyckades att tömma papperskorg: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzing' => ({required Object title}) => 'Analyserar "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Analys startad för "${title}"',
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Misslyckades att analysera bibliotek: ${error}',

@@ -350,6 +350,12 @@ class _Translations$settings$es implements Translations$settings$en {
 	@override String get downloadLocationChanged => 'Ubicación de descarga cambiada';
 	@override String get downloadLocationReset => 'Ubicación de descarga restablecida al predeterminado';
 	@override String get downloadLocationInvalid => 'La carpeta seleccionada no tiene permisos de escritura';
+	@override String get tempLocation => 'Temp Location';
+	@override String get tempLocationDescription => 'Temporary location for files during download. Files are moved to the download location when complete.';
+	@override String get tempLocationDefault => 'Same as download location';
+	@override String get tempLocationCustom => 'Custom temp folder';
+	@override String get tempLocationChanged => 'Temp location changed';
+	@override String get tempLocationReset => 'Temp location reset to download location';
 	@override String get downloadLocationSelectError => 'Error al seleccionar la carpeta';
 	@override String get downloadOnWifiOnly => 'Descargar solo con WiFi';
 	@override String get downloadOnWifiOnlyDescription => 'Evitar descargas cuando se usan datos móviles';
@@ -1546,6 +1552,12 @@ extension on TranslationsEs {
 			'settings.downloadLocationChanged' => 'Ubicación de descarga cambiada',
 			'settings.downloadLocationReset' => 'Ubicación de descarga restablecida al predeterminado',
 			'settings.downloadLocationInvalid' => 'La carpeta seleccionada no tiene permisos de escritura',
+			'settings.tempLocation' => 'Temp Location',
+			'settings.tempLocationDescription' => 'Temporary location for files during download. Files are moved to the download location when complete.',
+			'settings.tempLocationDefault' => 'Same as download location',
+			'settings.tempLocationCustom' => 'Custom temp folder',
+			'settings.tempLocationChanged' => 'Temp location changed',
+			'settings.tempLocationReset' => 'Temp location reset to download location',
 			'settings.downloadLocationSelectError' => 'Error al seleccionar la carpeta',
 			'settings.downloadOnWifiOnly' => 'Descargar solo con WiFi',
 			'settings.downloadOnWifiOnlyDescription' => 'Evitar descargas cuando se usan datos móviles',
@@ -1829,14 +1841,14 @@ extension on TranslationsEs {
 			'libraries.scanLibraryFiles' => 'Escanear Archivos de la Biblioteca',
 			'libraries.scanLibrary' => 'Escanear Biblioteca',
 			'libraries.analyze' => 'Analizar',
+			_ => null,
+		} ?? switch (path) {
 			'libraries.analyzeLibrary' => 'Analizar Biblioteca',
 			'libraries.refreshMetadata' => 'Actualizar Metadatos',
 			'libraries.emptyTrash' => 'Vaciar Papelera',
 			'libraries.emptyingTrash' => ({required Object title}) => 'Vaciando papelera de "${title}"...',
 			'libraries.trashEmptied' => ({required Object title}) => 'Papelera vaciada para "${title}"',
 			'libraries.failedToEmptyTrash' => ({required Object error}) => 'Error al vaciar papelera: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'libraries.analyzing' => ({required Object title}) => 'Analizando "${title}"...',
 			'libraries.analysisStarted' => ({required Object title}) => 'Análisis iniciado para "${title}"',
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Error al analizar la biblioteca: ${error}',
