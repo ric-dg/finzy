@@ -1480,7 +1480,7 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, TabV
         }
       } else {
         // Use file_picker on desktop
-        final result = await FilePicker.platform.getDirectoryPath(dialogTitle: t.settings.selectFolder);
+        final result = await FilePicker.getDirectoryPath(dialogTitle: t.settings.selectFolder);
         selectedPath = result;
       }
 
